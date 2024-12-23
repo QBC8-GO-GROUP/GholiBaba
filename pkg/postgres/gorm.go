@@ -11,17 +11,17 @@ import (
 )
 
 type DBConnOptions struct {
-	User   string
-	Pass   string
-	Host   string
-	Port   uint
-	DBName string
-	Schema string
+	Company string
+	Pass    string
+	Host    string
+	Port    uint
+	DBName  string
+	Schema  string
 }
 
 func (o DBConnOptions) PostgresDSN() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
-		o.Host, o.Port, o.User, o.Pass, o.DBName, o.Schema)
+	return fmt.Sprintf("host=%s port=%d company=%s password=%s dbname=%s search_path=%s sslmode=disable",
+		o.Host, o.Port, o.Company, o.Pass, o.DBName, o.Schema)
 }
 
 func NewPsqlGormConnection(opt DBConnOptions) (*gorm.DB, error) {
@@ -32,7 +32,7 @@ func NewPsqlGormConnection(opt DBConnOptions) (*gorm.DB, error) {
 func GormMigrations(db *gorm.DB) {
 
 	err := db.AutoMigrate(
-		&types.User{},
+		&types.Company{},
 	)
 	if err != nil {
 		log.Fatalf("failed to migrate models: %v", err)

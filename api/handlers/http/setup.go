@@ -55,8 +55,8 @@ func Run(appContainer app.App, config config.ServerConfig) error {
 }
 
 func registerAPI(appContainer app.App, cfg config.ServerConfig, permissionService *service.PermissionService, api fiber.Router) {
-	userRouter := api.Group("/user")
-	userSvcGetter := userServiceGetter(appContainer, cfg)
-	//user
-	userRouter.Post("/sign-up", SignUp(userSvcGetter))
+	companyRouter := api.Group("/company")
+	companySvcGetter := companyServiceGetter(appContainer, cfg)
+	//company
+	companyRouter.Post("/sign-up", SignUp(companySvcGetter))
 }
