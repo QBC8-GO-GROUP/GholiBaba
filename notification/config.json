@@ -1,4 +1,5 @@
 {
   "host" : "localhost",
-  "port" : 4222
+  "port" : 4222,
+  "subject" : "quera.gholibaba.notification"
 }
