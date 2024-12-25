@@ -8,13 +8,13 @@ import (
 type Connection struct {
 	Subject string
 	Host    string
-	Port    string
+	Port    int
 	nc      *nats.Conn
 	Sub     *nats.Subscription
 	Ch      chan string
 }
 
-func NewConnection(host, port, subject string) *Connection {
+func NewConnection(host string, port int, subject string) *Connection {
 	return &Connection{
 		Subject: subject,
 		Host:    host,
