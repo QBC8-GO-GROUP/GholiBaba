@@ -14,6 +14,7 @@ func main() {
 	cfg := config.MustReadConfig("config.json")
 
 	natsConn := nats.NewConnection(cfg.Host, cfg.Port, cfg.Subject)
+	natsConn.MustConnect()
 
 	ctx := context.Background()
 	broadcastServer := broadcast.NewBroadcastServer(ctx, natsConn.Ch)

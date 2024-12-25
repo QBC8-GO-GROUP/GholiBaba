@@ -26,7 +26,7 @@ func (c *Connection) Connect() error {
 	ch := make(chan string)
 	c.Ch = ch
 
-	nc, err := nats.Connect(fmt.Sprintf("nats://%s:%s", c.Host, c.Port))
+	nc, err := nats.Connect(fmt.Sprintf("nats://%s:%d", c.Host, c.Port))
 	if err != nil {
 		return err
 	}

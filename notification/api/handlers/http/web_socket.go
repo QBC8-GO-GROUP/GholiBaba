@@ -14,10 +14,13 @@ func NotificationSocket(broadcastServer broadcast.Server) fiber.Handler {
 
 		defer broadcastServer.CancelSubscribe(listener)
 
-		var err error
+		var (
+			err error
+			m   string
+		)
 		for {
 
-			m := <-listener
+			m = <-listener
 			// need to add some logic
 
 			if err = c.WriteJSON(fiber.Map{
