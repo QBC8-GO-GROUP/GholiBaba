@@ -6,9 +6,8 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/config"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/adapters/storage"
 
-	"github.com/QBC8-GO-GROUP/GholiBaba/internal/company"
-	"github.com/QBC8-GO-GROUP/GholiBaba/internal/company/domain"
-	companyPort "github.com/QBC8-GO-GROUP/GholiBaba/internal/company/port"
+	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/domain"
+	travelPort "github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
 
 	appCtx "github.com/QBC8-GO-GROUP/GholiBaba/pkg/context"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/postgres"
@@ -17,9 +16,9 @@ import (
 )
 
 type app struct {
-	db             *gorm.DB
-	cfg            config.Config
-	companyService companyPort.Service
+	db            *gorm.DB
+	cfg           config.Config
+	travelService travelPort.Service
 }
 
 // CodeVerificationService implements App.
@@ -27,20 +26,20 @@ type app struct {
 func (a *app) DB() *gorm.DB {
 	return a.db
 }
-func (a *app) CompanyService(ctx context.Context) companyPort.Service {
+func (a *app) CompanyService(ctx context.Context) travelPort.Service {
 	db := appCtx.GetDB(ctx)
 	if db == nil {
-		if a.companyService == nil {
-			a.companyService = a.companyServiceWithDB(a.db)
+		if a.travelService == nil {
+			a.travelService = a.travelServiceWithDB(a.db)
 		}
-		return a.companyService
+		return a.travelService
 	}
 
-	return a.companyServiceWithDB(db)
+	return a.travelServiceWithDB(db)
 }
 
-func (a *app) companyServiceWithDB(db *gorm.DB) companyPort.Service {
-	return company.NewService(storage.NewCompanyRepo(db))
+func (a *app) travelServiceWithDB(db *gorm.DB) travelPort.Service {
+	return travel.NewService(storage.NewTravelRepo(db))
 }
 
 func (a *app) Config(ctx context.Context) config.Config {
@@ -81,7 +80,7 @@ func NewApp(cfg config.Config) (App, error) {
 		return nil, err
 	}
 
-	app.companyService = company.NewService(storage.NewCompanyRepo(app.db))
+	app.travelService = travel.NewService(storage.NewCompanyRepo(app.db))
 	return app, nil
 }
 
@@ -95,10 +94,10 @@ func NewMustApp(cfg config.Config) App {
 
 func generatePermissions() []domain.Permission {
 	permissions := []domain.Permission{
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/company", Scope: "create"},
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/company/update", Scope: "update"},
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/company/:id", Scope: "delete"},
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/company/:id", Scope: "read"},
+		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel", Scope: "create"},
+		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel/update", Scope: "update"},
+		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel/:id", Scope: "delete"},
+		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel/:id", Scope: "read"},
 	}
 	return permissions
 }

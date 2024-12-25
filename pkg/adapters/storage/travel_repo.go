@@ -17,18 +17,18 @@ type companyRepo struct {
 	db *gorm.DB
 }
 
-func NewCompanyRepo(db *gorm.DB) port.Repo {
+func NewTravelRepo(db *gorm.DB) port.Repo {
 	return &companyRepo{db}
 
 }
 
-func (r *companyRepo) Create(ctx context.Context, companyDomain domain.Company) (domain.CompanyID, error) {
-	company := mapper.CompanyDomain2Storage(companyDomain)
-	return domain.CompanyID(company.ID), r.db.Table("companys").WithContext(ctx).Create(company).Error
+func (r *companyRepo) Create(ctx context.Context, companyDomain domain.Travel) (domain.TravelID, error) {
+	company := mapper.TravelDomain2Storage(companyDomain)
+	return domain.TravelID(company.ID), r.db.Table("companys").WithContext(ctx).Create(company).Error
 }
 
-func (r *companyRepo) GetByID(ctx context.Context, companyID domain.CompanyID) (*domain.Company, error) {
-	var company types.Company
+func (r *companyRepo) GetByID(ctx context.Context, companyID domain.TravelID) (*domain.Travel, error) {
+	var company types.Travel
 	err := r.db.Debug().Table("companys").
 		Where("id = ?", companyID).WithContext(ctx).
 		First(&company).Error
@@ -41,10 +41,10 @@ func (r *companyRepo) GetByID(ctx context.Context, companyID domain.CompanyID) (
 		return nil, nil
 	}
 
-	return mapper.CompanyStorage2Domain(company), nil
+	return mapper.TravelStorage2Domain(company), nil
 }
-func (r *companyRepo) GetByEmail(ctx context.Context, email domain.Email) (*domain.Company, error) {
-	var company types.Company
+func (r *companyRepo) GetByEmail(ctx context.Context, email domain.Email) (*domain.Travel, error) {
+	var company types.Travel
 	err := r.db.Table("companys").
 		Where("email = ?", email).
 		First(&company).Error
@@ -56,11 +56,11 @@ func (r *companyRepo) GetByEmail(ctx context.Context, email domain.Email) (*doma
 		return nil, nil
 	}
 
-	return mapper.CompanyStorage2Domain(company), nil
+	return mapper.TravelStorage2Domain(company), nil
 }
 
-func (r *companyRepo) GetByFilter(ctx context.Context, filter *domain.CompanyFilter) (*domain.Company, error) {
-	var company types.Company
+func (r *companyRepo) GetByFilter(ctx context.Context, filter *domain.TravelFilter) (*domain.Travel, error) {
+	var company types.Travel
 
 	q := r.db.Table("companys").Debug().WithContext(ctx)
 
@@ -82,18 +82,18 @@ func (r *companyRepo) GetByFilter(ctx context.Context, filter *domain.CompanyFil
 		return nil, nil
 	}
 
-	return mapper.CompanyStorage2Domain(company), nil
+	return mapper.TravelStorage2Domain(company), nil
 }
 
-func (r *companyRepo) UpdateCompany(ctx context.Context, company domain.Company) error {
-	var preUpdateCompany types.Company
-	err := r.db.Model(&types.Company{}).Where("id = ?", company.ID).First((&preUpdateCompany)).Error
+func (r *companyRepo) UpdateTravel(ctx context.Context, company domain.Travel) error {
+	var preUpdateTravel types.Travel
+	err := r.db.Model(&types.Travel{}).Where("id = ?", company.ID).First((&preUpdateTravel)).Error
 	if err != nil {
 		logger.Error(err.Error(), nil)
 		return err
 	}
 	currentTime := time.Now()
-	if currentTime.Sub(preUpdateCompany.CreatedAt) > 24*time.Hour {
+	if currentTime.Sub(preUpdateTravel.CreatedAt) > 24*time.Hour {
 		return errors.New("can not update company due to limitation of update time")
 	}
 	updates := make(map[string]interface{})
@@ -117,7 +117,7 @@ func (r *companyRepo) UpdateCompany(ctx context.Context, company domain.Company)
 		updates["national_code"] = company.NationalCode
 	}
 
-	if company.BirthDate != preUpdateCompany.BirthDate {
+	if company.BirthDate != preUpdateTravel.BirthDate {
 		updates["birth_date"] = company.BirthDate
 	}
 
@@ -125,11 +125,11 @@ func (r *companyRepo) UpdateCompany(ctx context.Context, company domain.Company)
 		updates["city"] = company.City
 	}
 
-	if company.Gender != preUpdateCompany.Gender {
+	if company.Gender != preUpdateTravel.Gender {
 		updates["gender"] = company.Gender
 	}
 
-	if company.SurveyLimitNumber != preUpdateCompany.SurveyLimitNumber {
+	if company.SurveyLimitNumber != preUpdateTravel.SurveyLimitNumber {
 		updates["survey_limit_number"] = company.SurveyLimitNumber
 	}
 
@@ -140,7 +140,7 @@ func (r *companyRepo) UpdateCompany(ctx context.Context, company domain.Company)
 	}
 
 	// Update the company record
-	if err := tx.Model(&types.Company{}).Where("id = ?", company.ID).Updates(updates).Error; err != nil {
+	if err := tx.Model(&types.Travel{}).Where("id = ?", company.ID).Updates(updates).Error; err != nil {
 		logger.Error(err.Error(), nil)
 		tx.Rollback()
 		return err
@@ -150,6 +150,6 @@ func (r *companyRepo) UpdateCompany(ctx context.Context, company domain.Company)
 	return tx.Commit().Error
 }
 
-func (r *companyRepo) DeleteByID(ctx context.Context, companyID domain.CompanyID) error {
-	return r.db.Where("id = ?", companyID).Delete(&types.Company{}).Error
+func (r *companyRepo) DeleteByID(ctx context.Context, companyID domain.TravelID) error {
+	return r.db.Where("id = ?", companyID).Delete(&types.Travel{}).Error
 }

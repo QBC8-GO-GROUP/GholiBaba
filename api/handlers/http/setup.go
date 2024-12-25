@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -9,7 +8,6 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/app"
 	"github.com/QBC8-GO-GROUP/GholiBaba/config"
 
-	"github.com/QBC8-GO-GROUP/GholiBaba/api/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -17,7 +15,7 @@ import (
 
 func Run(appContainer app.App, config config.ServerConfig) error {
 	app := fiber.New(fiber.Config{
-		AppName: "Survey v0.0.1",
+		AppName: "GholiBaba v0.0.1",
 	})
 
 	app.Use(TraceMiddleware())
@@ -43,10 +41,9 @@ func Run(appContainer app.App, config config.ServerConfig) error {
 		},
 	}))
 
-	api := app.Group("/api/v1")
+	api := app.Group("/")
 
-	permissionService := service.NewPermissionService(appContainer.PermissionService(context.Background()), config.Secret, config.AuthExpMinute, config.AuthRefreshMinute)
-	registerAPI(appContainer, config, permissionService, api)
+	registerAPI(appContainer, config, api)
 
 	certFile := "/app/server.crt"
 	keyFile := "/app/server.key"
@@ -54,9 +51,12 @@ func Run(appContainer app.App, config config.ServerConfig) error {
 	return app.ListenTLS(fmt.Sprintf(":%d", config.HttpPort), certFile, keyFile)
 }
 
-func registerAPI(appContainer app.App, cfg config.ServerConfig, permissionService *service.PermissionService, api fiber.Router) {
+func registerAPI(appContainer app.App, cfg config.ServerConfig, api fiber.Router) {
 	companyRouter := api.Group("/company")
 	companySvcGetter := companyServiceGetter(appContainer, cfg)
-	//company
-	companyRouter.Post("/sign-up", SignUp(companySvcGetter))
+
+	companyRouter.Post("", CreateTravel(companySvcGetter))
+	companyRouter.Get(":id", GetTravel(companySvcGetter))
+	companyRouter.Put("", UpdateTravel(companySvcGetter))
+	companyRouter.Delete(":id", DeleteTravel(companySvcGetter))
 }
