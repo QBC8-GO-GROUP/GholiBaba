@@ -23,7 +23,7 @@ func NewTravelRepo(db *gorm.DB) port.Repo {
 }
 
 func (tr *travelRepo) Create(ctx context.Context, travelDomain domain.Travel) (domain.TravelID, error) {
-	if travelDomain.Type != "" {
+	if travelDomain.Type > 0 {
 		logger.Error("travel type cannot be empty", nil)
 		return 0, errors.New("travel type cannot be empty")
 	}
@@ -51,17 +51,10 @@ func (tr *travelRepo) Create(ctx context.Context, travelDomain domain.Travel) (d
 		logger.Error("travel seats should be bigger than available", nil)
 		return 0, errors.New("travel seats should be bigger than available")
 	}
-	if travelDomain.Seats > travelDomain.Available {
-		logger.Error("travel seats should be bigger than available", nil)
-		return 0, errors.New("travel seats should be bigger than available")
-	}
-	if travelDomain.Seats > travelDomain.Available {
-		logger.Error("travel seats should be bigger than available", nil)
-		return 0, errors.New("travel seats should be bigger than available")
-	}
 	/*
 		TODO: call BookVehicle() using grpc to check vehicle availability, return error
 				vehicle_id == fetched ID from related microservice
+				company_id checker
 	*/
 	travel := mapper.TravelDomain2Storage(travelDomain)
 	return domain.TravelID(travel.ID), tr.db.Table("travels").WithContext(ctx).Create(travel).Error
@@ -112,7 +105,7 @@ func (tr *travelRepo) Update(ctx context.Context, travelDomain domain.Travel) er
 	if travelDomain.Owner != 0 {
 		changedTravel["company_id"] = travelDomain.Owner
 	}
-	if travelDomain.Type != "" {
+	if travelDomain.Type > 0 {
 		changedTravel["type"] = travelDomain.Type
 	}
 	if travelDomain.Source != "" {
