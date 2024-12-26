@@ -9,25 +9,13 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
-      - survey-network
+      - travel-network
     ports:
       - '${POSTGRES_PORT}:5432'
 
-  secretdb:
-    image: 'postgres:latest'
-    container_name: secretdb
-    environment:
-      POSTGRES_DB: ${POSTGRES_SecretDB_NAME}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    networks:
-      - survey-network
-    ports:
-      - '${POSTGRES_SecretDB_PORT}:5432'
-
-  online-survey:
+  gholi-travel:
     build: .
-    container_name: online-survey
+    container_name: gholi-travel
     ports:
       - "8080:8080"
     environment:
@@ -35,14 +23,13 @@ services:
       - TZ=Asia/Tehran
       - CONFIG_PATH=/app/config.json
     networks:
-      - survey-network
+      - travel-network
     restart: unless-stopped
     depends_on:
       - postgres
-      - secretdb
     volumes:
       - ${CONFIG_PATH}:/app/config.json
 
 networks:
-  survey-network:
+  travel-network:
     driver: bridge

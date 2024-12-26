@@ -3,7 +3,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN GO111MODULE=on GOPROXY=https://goproxy.cn,direct go mod download
 COPY . .
-RUN GO111MODULE=on GOPROXY=https://goproxy.cn,direct go build -o server ./cmd/votingSystem/main.go
+RUN GO111MODULE=on GOPROXY=https://goproxy.cn,direct go build -o server ./cmd/main.go
 
 FROM alpine:latest
 RUN apk --no-cache add tzdata

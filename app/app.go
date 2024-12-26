@@ -4,27 +4,26 @@ import (
 	"context"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/config"
+
 	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel"
-	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
+	travelPort "github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/adapters/storage"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/postgres"
 
-	"gorm.io/gorm"
-
 	appCtx "github.com/QBC8-GO-GROUP/GholiBaba/pkg/context"
+	"gorm.io/gorm"
 )
 
 type app struct {
 	db            *gorm.DB
 	cfg           config.Config
-	travelService port.Service
+	travelService travelPort.Service
 }
 
 func (a *app) DB() *gorm.DB {
 	return a.db
 }
-
-func (a *app) TravelService(ctx context.Context) port.Service {
+func (a *app) TravelService(ctx context.Context) travelPort.Service {
 	db := appCtx.GetDB(ctx)
 	if db == nil {
 		if a.travelService == nil {
@@ -36,11 +35,11 @@ func (a *app) TravelService(ctx context.Context) port.Service {
 	return a.travelServiceWithDB(db)
 }
 
-func (a *app) travelServiceWithDB(db *gorm.DB) port.Service {
+func (a *app) travelServiceWithDB(db *gorm.DB) travelPort.Service {
 	return travel.NewService(storage.NewTravelRepo(db))
 }
 
-func (a *app) Config() config.Config {
+func (a *app) Config(ctx context.Context) config.Config {
 	return a.cfg
 }
 
@@ -54,11 +53,14 @@ func (a *app) setDB() error {
 		Schema: a.cfg.DB.Schema,
 	})
 
+	postgres.GormMigrations(db)
+
 	if err != nil {
 		return err
 	}
 
 	a.db = db
+
 	return nil
 }
 
