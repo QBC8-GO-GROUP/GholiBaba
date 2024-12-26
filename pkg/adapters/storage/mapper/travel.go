@@ -24,6 +24,8 @@ func TravelDomain2Storage(travelDomain domain.Travel) *types.Travel {
 		Price:       travelDomain.Price,
 		Seats:       travelDomain.Seats,
 		Available:   travelDomain.Available,
+		Approved:    travelDomain.Approved,
+		Vehicle:     uint(travelDomain.Vehicle),
 	}
 }
 
@@ -41,5 +43,7 @@ func TravelStorage2Domain(travel types.Travel) *domain.Travel {
 		Price:       travel.Price,
 		Seats:       travel.Seats,
 		Available:   travel.Available,
+		Approved:    travel.Approved,
+		Vehicle:     domain.VehicleID(travel.Vehicle),
 	}
 }

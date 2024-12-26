@@ -21,7 +21,7 @@ type DBConfig struct {
 	Port     uint   `json:"port"`
 	Database string `json:"database"`
 	Schema   string `json:"schema"`
-	Company  string `json:"company"`
+	User     string `json:"user"`
 	Password string `json:"password"`
 }
 
@@ -30,7 +30,7 @@ type SecretDBConfig struct {
 	Port     uint   `json:"port"`
 	Database string `json:"database"`
 	Schema   string `json:"schema"`
-	Company  string `json:"company"`
+	User     string `json:"user"`
 	Password string `json:"password"`
 }
 
@@ -41,9 +41,9 @@ type LoggerConfig struct {
 }
 
 type EsConfig struct {
-	Host        string `json:"host"  yaml:"host"`
-	Port        string `json:"port"  yaml:"port"`
-	Companyname string `json:"companyname"  yaml:"companyname"`
-	Password    string `json:"password"  yaml:"password"`
-	Index       string `json:"index"  yaml:"index"`
+	Host     string `json:"host"  yaml:"host"`
+	Port     string `json:"port"  yaml:"port"`
+	Username string `json:"username"  yaml:"username"`
+	Password string `json:"password"  yaml:"password"`
+	Index    string `json:"index"  yaml:"index"`
 }

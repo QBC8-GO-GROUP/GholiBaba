@@ -17,4 +17,6 @@ type Travel struct {
 	Price       float64   `gorm:"column:price"`
 	Seats       int       `gorm:"column:seats"`
 	Available   int       `gorm:"column:available"`
+	Approved    bool      `gorm:"column:approved"`
+	Vehicle     uint      `gorm:"column:vehicle_id"`
 }

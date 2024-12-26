@@ -7,8 +7,12 @@ import (
 )
 
 type Repo interface {
-	Create(ctx context.Context, role domain.Travel) (domain.TravelID, error)
-	Get(ctx context.Context, roleID domain.TravelID) (*domain.Travel, error)
-	Update(ctx context.Context, role domain.Travel) error
-	Delete(ctx context.Context, roleID domain.TravelID) error
+	Create(ctx context.Context, travel domain.Travel) (domain.TravelID, error)
+	Update(ctx context.Context, travel domain.Travel) error
+	Get(ctx context.Context, travelID domain.TravelID) (*domain.Travel, error)
+	GetAll(ctx context.Context, companyID domain.OwnerID, page, pageSize int) ([]*domain.Travel, error)
+	Delete(ctx context.Context, travelID domain.TravelID) error
+	Book(ctx context.Context, travelID domain.TravelID) error
+	Cancel(ctx context.Context, travelID domain.TravelID) error
+	Approve(ctx context.Context, travelID domain.TravelID) error
 }

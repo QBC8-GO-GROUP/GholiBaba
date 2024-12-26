@@ -55,10 +55,10 @@ type FileOutput struct {
 }
 
 type ElasticsearchOutput struct {
-	url         string
-	index       string
-	companyname string
-	password    string
+	url      string
+	index    string
+	username string
+	password string
 }
 
 var defaultLogger *Logger
@@ -135,12 +135,12 @@ func (f *FileOutput) Close() error {
 	return f.file.Close()
 }
 
-func NewElasticsearchOutput(url, index, companyname, password string) LogOutput {
+func NewElasticsearchOutput(url, index, username, password string) LogOutput {
 	return &ElasticsearchOutput{
-		url:         url,
-		index:       index,
-		companyname: companyname,
-		password:    password,
+		url:      url,
+		index:    index,
+		username: username,
+		password: password,
 	}
 }
 

@@ -5,151 +5,227 @@ import (
 	"errors"
 	"time"
 
-	"github.com/QBC8-GO-GROUP/GholiBaba/internal/company/domain"
-	"github.com/QBC8-GO-GROUP/GholiBaba/internal/company/port"
+	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/domain"
+	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/adapters/storage/mapper"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/adapters/storage/types"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/logger"
 	"gorm.io/gorm"
 )
 
-type companyRepo struct {
+type travelRepo struct {
 	db *gorm.DB
 }
 
 func NewTravelRepo(db *gorm.DB) port.Repo {
-	return &companyRepo{db}
+	return &travelRepo{db}
 
 }
 
-func (r *companyRepo) Create(ctx context.Context, companyDomain domain.Travel) (domain.TravelID, error) {
-	company := mapper.TravelDomain2Storage(companyDomain)
-	return domain.TravelID(company.ID), r.db.Table("companys").WithContext(ctx).Create(company).Error
+func (tr *travelRepo) Create(ctx context.Context, travelDomain domain.Travel) (domain.TravelID, error) {
+	if travelDomain.Type != "" {
+		logger.Error("travel type cannot be empty", nil)
+		return 0, errors.New("travel type cannot be empty")
+	}
+	if travelDomain.Source != "" {
+		logger.Error("travel source cannot be empty", nil)
+		return 0, errors.New("travel source cannot be empty")
+	}
+	if travelDomain.Destination != "" {
+		logger.Error("travel destination cannot be empty", nil)
+		return 0, errors.New("travel destination cannot be empty")
+	}
+	if travelDomain.StartTime.After(time.Now()) {
+		logger.Error("travel start time could not be before now", nil)
+		return 0, errors.New("travel start time could not be before now")
+	}
+	if travelDomain.EndTime.After(travelDomain.StartTime) {
+		logger.Error("travel end time could not be before start time", nil)
+		return 0, errors.New("travel end time could not be before start time")
+	}
+	if travelDomain.Price != 0 {
+		logger.Error("travel price cannot be zero", nil)
+		return 0, errors.New("travel price cannot be zero")
+	}
+	if travelDomain.Seats > travelDomain.Available {
+		logger.Error("travel seats should be bigger than available", nil)
+		return 0, errors.New("travel seats should be bigger than available")
+	}
+	if travelDomain.Seats > travelDomain.Available {
+		logger.Error("travel seats should be bigger than available", nil)
+		return 0, errors.New("travel seats should be bigger than available")
+	}
+	if travelDomain.Seats > travelDomain.Available {
+		logger.Error("travel seats should be bigger than available", nil)
+		return 0, errors.New("travel seats should be bigger than available")
+	}
+	/*
+		TODO: call BookVehicle() using grpc to check vehicle availability, return error
+				vehicle_id == fetched ID from related microservice
+	*/
+	travel := mapper.TravelDomain2Storage(travelDomain)
+	return domain.TravelID(travel.ID), tr.db.Table("travels").WithContext(ctx).Create(travel).Error
 }
 
-func (r *companyRepo) GetByID(ctx context.Context, companyID domain.TravelID) (*domain.Travel, error) {
-	var company types.Travel
-	err := r.db.Debug().Table("companys").
-		Where("id = ?", companyID).WithContext(ctx).
-		First(&company).Error
+func (tr *travelRepo) Get(ctx context.Context, travelID domain.TravelID) (*domain.Travel, error) {
+	var travel types.Travel
+	err := tr.db.Debug().Table("travels").Where("id = ?", travelID).WithContext(ctx).First(&travel).Error
 
 	if err != nil {
+		logger.Error(err.Error(), nil)
 		return nil, err
 	}
 
-	if company.ID == 0 {
-		return nil, nil
+	if travel.ID == 0 {
+		logger.Error("travel not found", nil)
+		return nil, errors.New("travel not found")
 	}
-
-	return mapper.TravelStorage2Domain(company), nil
+	logger.Info("get travel by ID has been called succesfuly", nil)
+	return mapper.TravelStorage2Domain(travel), nil
 }
-func (r *companyRepo) GetByEmail(ctx context.Context, email domain.Email) (*domain.Travel, error) {
-	var company types.Travel
-	err := r.db.Table("companys").
-		Where("email = ?", email).
-		First(&company).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+
+func (tr *travelRepo) GetAll(ctx context.Context, companyID domain.OwnerID, page, pageSize int) ([]*domain.Travel, error) {
+	var travels []types.Travel
+	err := tr.db.Model(&types.Travel{}).Table("travels").Limit(pageSize).Offset((page-1)*pageSize).Where("company_id = ?", companyID).WithContext(ctx).Find(&travels).Error
+
+	if err != nil {
+		logger.Error(err.Error(), nil)
 		return nil, err
 	}
 
-	if company.ID == 0 {
-		return nil, nil
+	logger.Info("get travels based on company has been called succesfuly", nil)
+	var mappedTravels []*domain.Travel
+	for _, travel := range travels {
+		mappedTravels = append(mappedTravels, mapper.TravelStorage2Domain(travel))
 	}
-
-	return mapper.TravelStorage2Domain(company), nil
+	return mappedTravels, nil
 }
 
-func (r *companyRepo) GetByFilter(ctx context.Context, filter *domain.TravelFilter) (*domain.Travel, error) {
-	var company types.Travel
-
-	q := r.db.Table("companys").Debug().WithContext(ctx)
-
-	if filter.ID > 0 {
-		q = q.Where("id = ?", filter.ID)
-	}
-
-	if len(filter.Phone) > 0 {
-		q = q.Where("phone = ?", filter.Phone)
-	}
-
-	err := q.First(&company).Error
-
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, err
-	}
-
-	if company.ID == 0 {
-		return nil, nil
-	}
-
-	return mapper.TravelStorage2Domain(company), nil
-}
-
-func (r *companyRepo) UpdateTravel(ctx context.Context, company domain.Travel) error {
-	var preUpdateTravel types.Travel
-	err := r.db.Model(&types.Travel{}).Where("id = ?", company.ID).First((&preUpdateTravel)).Error
+func (tr *travelRepo) Update(ctx context.Context, travelDomain domain.Travel) error {
+	var updatingTravel types.Travel
+	err := tr.db.Model(&types.Travel{}).Where("id = ?", travelDomain.ID).First((&updatingTravel)).Error
 	if err != nil {
 		logger.Error(err.Error(), nil)
 		return err
 	}
-	currentTime := time.Now()
-	if currentTime.Sub(preUpdateTravel.CreatedAt) > 24*time.Hour {
-		return errors.New("can not update company due to limitation of update time")
+	changedTravel := make(map[string]interface{})
+	if travelDomain.Owner != 0 {
+		changedTravel["company_id"] = travelDomain.Owner
 	}
-	updates := make(map[string]interface{})
-	if company.FirstName != "" {
-		updates["first_name"] = company.FirstName
+	if travelDomain.Type != "" {
+		changedTravel["type"] = travelDomain.Type
 	}
-
-	if company.FirstName != "" {
-		updates["last_name"] = company.LastName
+	if travelDomain.Source != "" {
+		changedTravel["source"] = travelDomain.Source
 	}
-
-	if company.Phone != "" {
-		updates["phone"] = company.Phone
+	if travelDomain.Destination != "" {
+		changedTravel["destination"] = travelDomain.Destination
 	}
-
-	if company.Email != "" {
-		updates["email"] = company.Email
+	if travelDomain.StartTime.After(time.Now()) {
+		changedTravel["start_time"] = travelDomain.StartTime
 	}
-
-	if company.NationalCode != "" {
-		updates["national_code"] = company.NationalCode
+	if travelDomain.EndTime.After(travelDomain.StartTime) {
+		changedTravel["end_time"] = travelDomain.EndTime
 	}
-
-	if company.BirthDate != preUpdateTravel.BirthDate {
-		updates["birth_date"] = company.BirthDate
+	if travelDomain.Price != 0 {
+		changedTravel["price"] = travelDomain.Price
 	}
-
-	if company.City != "" {
-		updates["city"] = company.City
+	if travelDomain.Seats > travelDomain.Available {
+		changedTravel["seats"] = travelDomain.Seats
 	}
-
-	if company.Gender != preUpdateTravel.Gender {
-		updates["gender"] = company.Gender
+	if travelDomain.Seats > travelDomain.Available {
+		changedTravel["available"] = travelDomain.Available
 	}
-
-	if company.SurveyLimitNumber != preUpdateTravel.SurveyLimitNumber {
-		updates["survey_limit_number"] = company.SurveyLimitNumber
-	}
-
-	tx := r.db.Begin()
+	tx := tr.db.WithContext(ctx).Begin()
 	if tx.Error != nil {
 		logger.Error(tx.Error.Error(), nil)
 		return tx.Error
 	}
 
-	// Update the company record
-	if err := tx.Model(&types.Travel{}).Where("id = ?", company.ID).Updates(updates).Error; err != nil {
+	if err := tx.Model(&types.Travel{}).Where("id = ?", travelDomain.ID).Updates(changedTravel).Error; err != nil {
 		logger.Error(err.Error(), nil)
 		tx.Rollback()
 		return err
 	}
 
-	// Commit the transaction
 	return tx.Commit().Error
 }
 
-func (r *companyRepo) DeleteByID(ctx context.Context, companyID domain.TravelID) error {
-	return r.db.Where("id = ?", companyID).Delete(&types.Travel{}).Error
+func (tr *travelRepo) Delete(ctx context.Context, travelID domain.TravelID) error {
+	return tr.db.Where("id = ?", travelID).Delete(&types.Travel{}).Error
+}
+
+func (tr *travelRepo) Book(ctx context.Context, travelID domain.TravelID) error {
+	var updatingTravel types.Travel
+	err := tr.db.Model(&types.Travel{}).Where("id = ?", travelID).First((&updatingTravel)).Error
+	if err != nil {
+		logger.Error(err.Error(), nil)
+		return err
+	}
+	tx := tr.db.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		logger.Error(tx.Error.Error(), nil)
+		return tx.Error
+	}
+	newAvailable := updatingTravel.Available - 1
+	if err := tx.Model(&types.Travel{}).Where("id = ?", travelID).Update("available", newAvailable).Error; err != nil {
+		logger.Error(err.Error(), nil)
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func (tr *travelRepo) Cancel(ctx context.Context, travelID domain.TravelID) error {
+	var updatingTravel types.Travel
+	err := tr.db.Model(&types.Travel{}).Where("id = ?", travelID).First((&updatingTravel)).Error
+	if err != nil {
+		logger.Error(err.Error(), nil)
+		return err
+	}
+	tx := tr.db.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		logger.Error(tx.Error.Error(), nil)
+		return tx.Error
+	}
+	newAvailable := updatingTravel.Available + 1
+	if err := tx.Model(&types.Travel{}).Where("id = ?", travelID).Update("available", newAvailable).Error; err != nil {
+		logger.Error(err.Error(), nil)
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func (tr *travelRepo) Approve(ctx context.Context, travelID domain.TravelID) error {
+	var updatingTravel types.Travel
+	err := tr.db.Model(&types.Travel{}).Where("id = ?", travelID).First((&updatingTravel)).Error
+	if err != nil {
+		logger.Error(err.Error(), nil)
+		return err
+	}
+	tx := tr.db.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		logger.Error(tx.Error.Error(), nil)
+		return tx.Error
+	}
+
+	if !updatingTravel.StartTime.Before(time.Now().Add(-24 * time.Hour)) {
+		logger.Error("cannot approve travel less than a day before", nil)
+		/*
+			TODO: call cancel travel to send notif to others
+		*/
+		tx.Rollback()
+		return errors.New("cannot approve travel less than a day before")
+	}
+
+	if err := tx.Model(&types.Travel{}).Where("id = ?", travelID).Update("approved", true).Error; err != nil {
+		logger.Error(err.Error(), nil)
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }

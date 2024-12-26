@@ -20,7 +20,7 @@ type DBConnOptions struct {
 }
 
 func (o DBConnOptions) PostgresDSN() string {
-	return fmt.Sprintf("host=%s port=%d company=%s password=%s dbname=%s search_path=%s sslmode=disable",
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
 		o.Host, o.Port, o.Company, o.Pass, o.DBName, o.Schema)
 }
 
