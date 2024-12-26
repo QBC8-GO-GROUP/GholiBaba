@@ -16,6 +16,8 @@ func main() {
 	natsConn := nats.NewConnection(cfg.Host, cfg.Port, cfg.Subject)
 	natsConn.MustConnect()
 
+	defer natsConn.Close()
+
 	ctx := context.Background()
 	broadcastServer := broadcast.NewBroadcastServer(ctx, natsConn.Ch)
 
