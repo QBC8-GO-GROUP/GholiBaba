@@ -3,32 +3,49 @@ package service
 import (
 	"context"
 
-	"github.com/porseOnline/internal/user/domain"        // correct import after merging user logic
-	userPort "github.com/porseOnline/internal/user/port" // correct import after merging user logic
+	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/domain"
+	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
 )
 
 type TravelService struct {
-	svc                   userPort.TravelService
-	authSecret            string
-	expMin, refreshExpMin uint
+	svc port.Service
 }
 
-func NewTravelService(svc userPort.TravelService, authSecret string, expMin, refreshExpMin uint) *TravelService {
-	return &TravelService{svc: svc, authSecret: authSecret, expMin: expMin, refreshExpMin: refreshExpMin}
+func NewTravelService(svc port.Service) *TravelService {
+	return &TravelService{svc: svc}
 }
 
-func (rs *TravelService) CreateTravel(ctx context.Context, role domain.Travel) (domain.TravelID, error) {
-	return rs.svc.CreateTravel(ctx, role)
+func (rs *TravelService) CreateTravel(ctx context.Context, travel domain.Travel) (domain.TravelID, error) {
+	return rs.svc.CreateTravel(ctx, travel)
 }
 
-func (rs *TravelService) GetTravel(ctx context.Context, roleID domain.TravelID) (*domain.Travel, error) {
-	return rs.svc.GetTravel(ctx, roleID)
+func (rs *TravelService) UpdateTravel(ctx context.Context, travel domain.Travel) error {
+	return rs.svc.UpdateTravel(ctx, travel)
 }
 
-func (rs *TravelService) UpdateTravel(ctx context.Context, role domain.Travel) error {
-	return rs.svc.UpdateTravel(ctx, role)
+func (rs *TravelService) GetTravelByID(ctx context.Context, travelID domain.TravelID) (*domain.Travel, error) {
+	return rs.svc.GetTravelByID(ctx, travelID)
 }
 
-func (rs *TravelService) DeleteTravel(ctx context.Context, roleID domain.TravelID) error {
-	return rs.svc.DeleteTravel(ctx, roleID)
+func (rs *TravelService) GetTravels(ctx context.Context, companyID domain.OwnerID, page, pageSize int) ([]*domain.Travel, error) {
+	return rs.svc.GetTravels(ctx, companyID, page, pageSize)
 }
+
+func (rs *TravelService) DeleteTravel(ctx context.Context, travelID domain.TravelID) error {
+	return rs.svc.DeleteTravel(ctx, travelID)
+}
+
+func (rs *TravelService) BookTravel(ctx context.Context, travelID domain.TravelID) error {
+	return rs.svc.BookTravel(ctx, travelID)
+}
+
+func (rs *TravelService) CancelBooking(ctx context.Context, travelID domain.TravelID) error {
+	return rs.svc.CancelBooking(ctx, travelID)
+}
+
+func (rs *TravelService) ApproveTravel(ctx context.Context, travelID domain.TravelID) error {
+	return rs.svc.ApproveTravel(ctx, travelID)
+}
+
+// TODO: CancelTravel should be a grpc service to be called from timer or something
+// TODO: FinishTravel should be a grpc service to be called from timer or something

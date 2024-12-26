@@ -11,17 +11,17 @@ import (
 )
 
 type DBConnOptions struct {
-	Company string
-	Pass    string
-	Host    string
-	Port    uint
-	DBName  string
-	Schema  string
+	User   string
+	Pass   string
+	Host   string
+	Port   uint
+	DBName string
+	Schema string
 }
 
 func (o DBConnOptions) PostgresDSN() string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
-		o.Host, o.Port, o.Company, o.Pass, o.DBName, o.Schema)
+		o.Host, o.Port, o.User, o.Pass, o.DBName, o.Schema)
 }
 
 func NewPsqlGormConnection(opt DBConnOptions) (*gorm.DB, error) {

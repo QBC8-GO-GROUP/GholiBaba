@@ -6,12 +6,12 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/config"
 	"gorm.io/gorm"
 
-	companyPort "github.com/QBC8-GO-GROUP/GholiBaba/internal/company/port"
+	travelPort "github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
 )
 
 type App interface {
 	DB() *gorm.DB
 
 	Config(ctx context.Context) config.Config
-	CompanyService(ctx context.Context) companyPort.Service
+	TravelService(ctx context.Context) travelPort.Service
 }

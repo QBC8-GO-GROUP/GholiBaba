@@ -4,29 +4,27 @@ import (
 	"context"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/config"
+	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel"
+	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/adapters/storage"
-
-	"github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/domain"
-	travelPort "github.com/QBC8-GO-GROUP/GholiBaba/internal/travel/port"
-
-	appCtx "github.com/QBC8-GO-GROUP/GholiBaba/pkg/context"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/postgres"
 
 	"gorm.io/gorm"
+
+	appCtx "github.com/QBC8-GO-GROUP/GholiBaba/pkg/context"
 )
 
 type app struct {
 	db            *gorm.DB
 	cfg           config.Config
-	travelService travelPort.Service
+	travelService port.Service
 }
-
-// CodeVerificationService implements App.
 
 func (a *app) DB() *gorm.DB {
 	return a.db
 }
-func (a *app) CompanyService(ctx context.Context) travelPort.Service {
+
+func (a *app) TravelService(ctx context.Context) port.Service {
 	db := appCtx.GetDB(ctx)
 	if db == nil {
 		if a.travelService == nil {
@@ -38,50 +36,43 @@ func (a *app) CompanyService(ctx context.Context) travelPort.Service {
 	return a.travelServiceWithDB(db)
 }
 
-func (a *app) travelServiceWithDB(db *gorm.DB) travelPort.Service {
+func (a *app) travelServiceWithDB(db *gorm.DB) port.Service {
 	return travel.NewService(storage.NewTravelRepo(db))
 }
 
-func (a *app) Config(ctx context.Context) config.Config {
+func (a *app) Config() config.Config {
 	return a.cfg
 }
 
 func (a *app) setDB() error {
 	db, err := postgres.NewPsqlGormConnection(postgres.DBConnOptions{
-		Company: a.cfg.DB.Company,
-		Pass:    a.cfg.DB.Password,
-		Host:    a.cfg.DB.Host,
-		Port:    a.cfg.DB.Port,
-		DBName:  a.cfg.DB.Database,
-		Schema:  a.cfg.DB.Schema,
+		User:   a.cfg.DB.User,
+		Pass:   a.cfg.DB.Password,
+		Host:   a.cfg.DB.Host,
+		Port:   a.cfg.DB.Port,
+		DBName: a.cfg.DB.Database,
+		Schema: a.cfg.DB.Schema,
 	})
-
-	postgres.GormMigrations(db)
 
 	if err != nil {
 		return err
 	}
 
 	a.db = db
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func NewApp(cfg config.Config) (App, error) {
-	app := &app{
+	a := &app{
 		cfg: cfg,
 	}
 
-	if err := app.setDB(); err != nil {
+	if err := a.setDB(); err != nil {
 		return nil, err
 	}
 
-	app.travelService = travel.NewService(storage.NewCompanyRepo(app.db))
-	return app, nil
+	a.travelService = travel.NewService(storage.NewTravelRepo(a.db))
+	return a, nil
 }
 
 func NewMustApp(cfg config.Config) App {
@@ -90,14 +81,4 @@ func NewMustApp(cfg config.Config) App {
 		panic(err)
 	}
 	return app
-}
-
-func generatePermissions() []domain.Permission {
-	permissions := []domain.Permission{
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel", Scope: "create"},
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel/update", Scope: "update"},
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel/:id", Scope: "delete"},
-		{Policy: domain.PolicyUnknown, Resource: "/api/v1/travel/:id", Scope: "read"},
-	}
-	return permissions
 }

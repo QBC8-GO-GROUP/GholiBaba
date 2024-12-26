@@ -52,11 +52,15 @@ func Run(appContainer app.App, config config.ServerConfig) error {
 }
 
 func registerAPI(appContainer app.App, cfg config.ServerConfig, api fiber.Router) {
-	companyRouter := api.Group("/company")
-	companySvcGetter := companyServiceGetter(appContainer, cfg)
+	travelRouter := api.Group("/travel")
+	travelSvcGetter := travelServiceGetter(appContainer, cfg)
 
-	companyRouter.Post("", CreateTravel(companySvcGetter))
-	companyRouter.Get(":id", GetTravel(companySvcGetter))
-	companyRouter.Put("", UpdateTravel(companySvcGetter))
-	companyRouter.Delete(":id", DeleteTravel(companySvcGetter))
+	travelRouter.Post("", CreateTravel(travelSvcGetter))
+	travelRouter.Put("", UpdateTravel(travelSvcGetter))
+	travelRouter.Get(":id", GetTravelByID(travelSvcGetter))
+	travelRouter.Get(":companyId", GetTravels(travelSvcGetter))
+	travelRouter.Delete(":id", DeleteTravel(travelSvcGetter))
+	travelRouter.Patch(":id/book", BookTravel(travelSvcGetter))
+	travelRouter.Patch(":id/cancel", CancelBooking(travelSvcGetter))
+	travelRouter.Patch(":id/approve", ApproveTravel(travelSvcGetter))
 }

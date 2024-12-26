@@ -80,7 +80,7 @@ func InitLogger(c config.Config) error {
 			output, err = NewFileOutput(c.Logger.Path)
 		case "elasticsearch":
 			output = NewElasticsearchOutput(c.Elasticsearch.Host, c.Elasticsearch.Index,
-				c.Elasticsearch.Companyname, c.Elasticsearch.Password)
+				c.Elasticsearch.Username, c.Elasticsearch.Password)
 		}
 		if err != nil {
 			return
