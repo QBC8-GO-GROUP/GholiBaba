@@ -1,2 +1,2 @@
 gen-proto:
-		protoc -I=./api/pb --go_out=./api/pb --go_opt=paths=source_relative  --go-grpc_out=./api/pb --go-grpc_opt=paths=source_relative ./api/pb/*.proto
+		protoc -I=./api/handlers/grpc --go_out=./api/handlers/grpc --go_opt=paths=source_relative  --go-grpc_out=./api/handlers/grpc --go-grpc_opt=paths=source_relative ./api/handlers/grpc/*.proto
