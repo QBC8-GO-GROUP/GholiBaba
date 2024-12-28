@@ -25,3 +25,4 @@ configmap.yaml
 
 # IDE
 .idea/
+.vscode/
