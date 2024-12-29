@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package = "github.com/QBC8-GO-GROUP/GholiBaba/ticket/api/handlers/grpc";
+
+message BuyTicketRequest {
+    uint32 userId = 1 [json_name = "user_id"];
+    uint32 travelId = 2 [json_name = "travel_id"];
+}
+
+message BuyTicketResponse {
+    uint32 ticketId = 1 [json_name = "id"];
+}
+
