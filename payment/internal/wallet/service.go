@@ -15,21 +15,17 @@ func NewService(repo port.Repo) port.Service {
 }
 
 func (s *service) CreateWallet(ctx context.Context, wallet domain.Wallet) error {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.Create(ctx, wallet)
 }
 
 func (s *service) UpdateWallet(ctx context.Context, wallet domain.Wallet) error {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.Update(ctx, wallet)
 }
 
 func (s *service) FindUserWallet(ctx context.Context, userId string) (domain.Wallet, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.FindWithUserId(ctx, userId)
 }
 
 func (s *service) DeleteUserWallet(ctx context.Context, walletId domain.WalletID) error {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.DeleteWithUserId(ctx, walletId)
 }

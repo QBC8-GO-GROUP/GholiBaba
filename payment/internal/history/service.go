@@ -15,26 +15,21 @@ func NewService(r port.Repo) port.Service {
 }
 
 func (s *service) CreateHistory(ctx context.Context, history domain.History) (domain.HistoryId, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.Create(ctx, history)
 }
 
 func (s *service) UpdateHistory(ctx context.Context, history domain.History) error {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.Update(ctx, history)
 }
 
 func (s *service) FindHistoryWithId(ctx context.Context, id domain.HistoryId) ([]domain.History, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.FindWithId(ctx, id)
 }
 
 func (s *service) FindHistoryWithUserId(ctx context.Context, userId int64) ([]domain.History, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.FindWithUserId(ctx, userId)
 }
 
 func (s *service) DeleteHistory(ctx context.Context, historyId domain.HistoryId) error {
-	//TODO implement me
-	panic("implement me")
+	return s.repo.Delete(ctx, historyId)
 }
