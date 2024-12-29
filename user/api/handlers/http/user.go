@@ -56,3 +56,11 @@ func SignIn(svc *service.UserService) fiber.Handler {
 		return c.JSON(resp)
 	}
 }
+
+func TestHandler(ctx *fiber.Ctx) error {
+	logger := context.GetLogger(ctx.UserContext())
+
+	logger.Info("from test handler", "time", time.Now().Format(time.DateTime))
+
+	return nil
+}
