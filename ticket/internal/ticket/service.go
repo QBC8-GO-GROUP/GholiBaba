@@ -27,16 +27,31 @@ func (s *service) BuyTicket(ctx context.Context, travelID domain.TravelID, userI
 		logger.Error(fmt.Sprintf("error on buying new ticket %s", err.Error()), nil)
 		return 0, err
 	}
+	/*
+		TODO:
+			1- get related travel data to have the price
+			2- call travel microservice using grpc to book a seat on specific travel
+			3- if success, call payment microservice to subtract travel price from users wallet
+			4- if success, change ticket status to paid
+			5- if failed, reverse travel booking process and cancel it
+	*/
 
 	return ticketID, nil
 }
 
 func (s *service) CancelTicket(ctx context.Context, ticketID domain.TicketID) error {
+	/*
+		TODO:
+			1- find related travelID and call cancel booking on it
+			2- if success, call payment microservice to charge user wallet balance with travel price
+			4- if success, continue to next step and delete ticket
+	*/
 	err := s.repo.Delete(ctx, ticketID)
 	if err != nil {
 		logger.Error(fmt.Sprintf("error on canceling ticket %s", err.Error()), nil)
 		return err
 	}
+
 	return nil
 }
 
