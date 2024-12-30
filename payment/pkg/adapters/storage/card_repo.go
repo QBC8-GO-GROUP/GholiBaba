@@ -27,7 +27,7 @@ func (c *cardsRepo) Update(ctx context.Context, card domain.Card) error {
 	return c.db.WithContext(ctx).Model(&types.Card{}).Where("id = ?", card.Id).Updates(storageCard).Error
 }
 
-func (c *cardsRepo) FindWithUserId(ctx context.Context, userId int64) ([]domain.Card, error) {
+func (c *cardsRepo) FindWithUserId(ctx context.Context, userId string) ([]domain.Card, error) {
 	var storageCards []types.Card
 	err := c.db.WithContext(ctx).Where("wallet_id = ?", userId).Find(&storageCards).Error
 	if err != nil {
@@ -36,7 +36,7 @@ func (c *cardsRepo) FindWithUserId(ctx context.Context, userId int64) ([]domain.
 	return mapper.CardsStorageToDomainList(storageCards), nil
 }
 
-func (c *cardsRepo) DeleteWithUserId(ctx context.Context, userId int64) error {
+func (c *cardsRepo) DeleteWithUserId(ctx context.Context, userId string) error {
 	return c.db.WithContext(ctx).Where("wallet_id = ?", userId).Delete(&types.Card{}).Error
 }
 

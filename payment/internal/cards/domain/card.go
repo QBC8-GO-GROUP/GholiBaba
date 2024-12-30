@@ -6,10 +6,10 @@ import (
 )
 
 type Card struct {
-	Id        uint
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time
-	Numbers   string
-	WalletId  walletDomain.WalletID
+	Id        uint                  `json:"id,omitempty"`
+	CreatedAt time.Time             `json:"createdAt"`
+	UpdatedAt time.Time             `json:"updatedAt"`
+	DeletedAt time.Time             `json:"deletedAt"`
+	Numbers   string                `json:"numbers,omitempty"`
+	WalletId  walletDomain.WalletID `json:"walletId,omitempty"`
 }

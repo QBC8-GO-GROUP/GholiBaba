@@ -9,6 +9,7 @@ type Wallet struct {
 	gorm.Model
 	Id        uint //WalletID
 	UserId    string
+	Code      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time

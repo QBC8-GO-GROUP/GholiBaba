@@ -29,15 +29,15 @@ func (s *service) UpdateCard(ctx context.Context, card domain.Card) error {
 	return s.repo.Update(ctx, card)
 }
 
-func (s *service) FindCardWithUserId(ctx context.Context, userId int64) ([]domain.Card, error) {
-	if userId <= 0 {
+func (s *service) FindCardWithUserId(ctx context.Context, userId string) ([]domain.Card, error) {
+	if len(userId) == 0 {
 		return nil, errors.New("invalid user ID")
 	}
 	return s.repo.FindWithUserId(ctx, userId)
 }
 
-func (s *service) DeleteCardWithUserId(ctx context.Context, userId int64) error {
-	if userId <= 0 {
+func (s *service) DeleteCardWithUserId(ctx context.Context, userId string) error {
+	if len(userId) == 0 {
 		return errors.New("invalid user ID")
 	}
 	return s.repo.DeleteWithUserId(ctx, userId)

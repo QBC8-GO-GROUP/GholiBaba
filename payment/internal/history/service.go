@@ -36,8 +36,8 @@ func (s *service) FindHistoryWithId(ctx context.Context, id domain.HistoryId) ([
 	return s.repo.FindWithId(ctx, id)
 }
 
-func (s *service) FindHistoryWithUserId(ctx context.Context, userId int64) ([]domain.History, error) {
-	if userId <= 0 {
+func (s *service) FindHistoryWithUserId(ctx context.Context, userId string) ([]domain.History, error) {
+	if len(userId) == 0 {
 		return nil, errors.New("invalid user ID")
 	}
 	return s.repo.FindWithUserId(ctx, userId)

@@ -42,7 +42,7 @@ func (h *historyRepo) FindWithId(ctx context.Context, id domain.HistoryId) ([]do
 	return mapper.HistoryStorageToDomainList(storageHistories), nil
 }
 
-func (h *historyRepo) FindWithUserId(ctx context.Context, userId int64) ([]domain.History, error) {
+func (h *historyRepo) FindWithUserId(ctx context.Context, userId string) ([]domain.History, error) {
 	var storageHistories []types.History
 	err := h.db.WithContext(ctx).
 		Where("source = ? OR destination = ?", userId, userId).

@@ -38,7 +38,7 @@ func (w *walletRepo) FindWithUserId(ctx context.Context, userId string) (domain.
 	if err != nil {
 		return domain.Wallet{}, err
 	}
-	return mapper.WalletStorageToDomain(storageWallet), nil
+	return mapper.WalletStorageToDomain(storageWallet)
 }
 
 func (w *walletRepo) DeleteWithUserId(ctx context.Context, walletId domain.WalletID) error {
