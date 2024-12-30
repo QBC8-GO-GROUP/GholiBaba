@@ -36,3 +36,8 @@ func (h *HistoryHandler) GetUserHistory() fiber.Handler {
 
 	}
 }
+
+func RegisterHistory(api fiber.Router, historyHandler *HistoryHandler) {
+	history := api.Group("/history")
+	history.Get("/", historyHandler.GetUserHistory())
+}

@@ -96,3 +96,11 @@ func (h *CardHandler) DeleteCard() fiber.Handler {
 type CreateCardReq struct {
 	number string
 }
+
+func RegisterCards(api fiber.Router, cardHandler *CardHandler) {
+	cards := api.Group("/cards")
+
+	cards.Post("/", cardHandler.CreateCard())
+	cards.Get("/", cardHandler.ListCard())
+	cards.Delete("/", cardHandler.DeleteCard())
+}

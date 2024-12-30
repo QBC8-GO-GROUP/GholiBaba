@@ -199,6 +199,15 @@ func (h *WalletHandler) CreateWallet() fiber.Handler {
 	}
 }
 
+func RegisterWaller(api fiber.Router, transaction fiber.Handler, walletHandler *WalletHandler) {
+	group := api.Group("/wallet", SetUserContext)
+
+	group.Use(transaction)
+
+	group.Post("money", walletHandler.AddMoney())
+	group.Post("pay", walletHandler.Pay())
+}
+
 type AddMoneyReq struct {
 	Money float64 `json:"money"`
 }

@@ -33,6 +33,10 @@ func MustNewApp(cfg config.Config) *App {
 	return app
 }
 
+func (app *App) DB() *gorm.DB {
+	return app.db
+}
+
 func (app *App) setDB() error {
 	var cfg = app.config.DB
 	db, err := myPostgres.NewPsqlGormConnection(myPostgres.DBConnOptions{
