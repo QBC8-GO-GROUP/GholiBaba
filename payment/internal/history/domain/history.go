@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	HistoryId uint
+	HistoryId uuid.UUID
 )
 
 type History struct {
