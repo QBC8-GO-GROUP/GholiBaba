@@ -2,6 +2,9 @@ package app
 
 import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/config"
+	cardsDomain "github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/cards/domain"
+	historyDomain "github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/domain"
+	walletDomain "github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/wallet/domain"
 	myPostgres "github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/postgres"
 	"gorm.io/gorm"
 )
@@ -55,4 +58,13 @@ func (app *App) setDB() error {
 	app.db = db
 	return nil
 
+}
+
+func AutoMigrate(db *gorm.DB) error {
+	err := db.AutoMigrate(
+		&cardsDomain.Card{},
+		&historyDomain.History{},
+		&walletDomain.Wallet{},
+	)
+	return err
 }
