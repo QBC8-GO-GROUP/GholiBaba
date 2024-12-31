@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -10,4 +11,5 @@ type User struct {
 	LastName  string
 	Phone     string
 	Password  string
+	walletID  uuid.UUID
 }

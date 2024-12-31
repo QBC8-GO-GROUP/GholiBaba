@@ -1,16 +1,28 @@
-FROM golang:1.23 as builder
+# Base image for Go
+FROM golang:alpine
 
-WORKDIR /github.com/babyhando/order-service
+LABEL maintainer="GholiBaba"
 
-RUN CGO_ENABLED=0 go build -o ./order-api cmd/main.go
+# Install necessary tools including Delve
+RUN apk add --no-cache git bash gcc musl-dev && \
+    go install github.com/go-delve/delve/cmd/dlv@latest
 
-FROM alpine as deploy
+RUN mkdir /app
+WORKDIR /app
 
-RUN apk add --no-cache tzdata
-ENV TZ=Asia/Tehran
+# Copy application files
+COPY . .
+COPY ../ .
+# Setup Go environment
+RUN go env -w GO111MODULE=on
+RUN go env -w GOPROXY=https://goproxy.cn,direct
 
-WORKDIR /github.com/babyhando/order-service
+COPY ../go.mod .
+COPY ../go.sum .
 
-COPY --from=builder /github.com/babyhando/order-service/order-api ./order-api
+RUN go mod download
+# Expose ports for the app and delve
+EXPOSE 8080 40000
 
-CMD [ "./order-api" , "--config" , "/etc/config.json"]
+# Use Delve to run the application in debug mode
+CMD ["go", "run", "--config", "/app/sample-config.json"]
