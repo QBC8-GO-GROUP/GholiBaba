@@ -6,6 +6,7 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/port"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage/mapper"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage/types"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +35,7 @@ func (h *historyRepo) Update(ctx context.Context, history domain.History) error 
 func (h *historyRepo) FindWithId(ctx context.Context, id domain.HistoryId) ([]domain.History, error) {
 	var storageHistories []types.History
 	err := h.db.WithContext(ctx).
-		Where("id = ?", uint(id)).
+		Where("id = ?", uuid.UUID(id)).
 		Find(&storageHistories).Error
 	if err != nil {
 		return nil, err
@@ -55,6 +56,6 @@ func (h *historyRepo) FindWithUserId(ctx context.Context, userId string) ([]doma
 
 func (h *historyRepo) Delete(ctx context.Context, historyId domain.HistoryId) error {
 	return h.db.WithContext(ctx).
-		Where("id = ?", uint(historyId)).
+		Where("id = ?", uuid.UUID(historyId)).
 		Delete(&types.History{}).Error
 }
