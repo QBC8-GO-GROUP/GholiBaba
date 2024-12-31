@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/domain"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/port"
+	"github.com/google/uuid"
 )
 
 type service struct {
@@ -17,7 +18,7 @@ func NewService(r port.Repo) port.Service {
 
 func (s *service) CreateHistory(ctx context.Context, history domain.History) (domain.HistoryId, error) {
 	if err := validateHistory(history); err != nil {
-		return 0, err
+		return domain.HistoryId(uuid.Nil), err
 	}
 	return s.repo.Create(ctx, history)
 }
@@ -30,8 +31,8 @@ func (s *service) UpdateHistory(ctx context.Context, history domain.History) err
 }
 
 func (s *service) FindHistoryWithId(ctx context.Context, id domain.HistoryId) ([]domain.History, error) {
-	if id <= 0 {
-		return nil, errors.New("invalid history ID")
+	if uuid.UUID(id) == uuid.Nil {
+		return nil, errors.New("invalid history ID: UUID is empty")
 	}
 	return s.repo.FindWithId(ctx, id)
 }
@@ -44,7 +45,7 @@ func (s *service) FindHistoryWithUserId(ctx context.Context, userId string) ([]d
 }
 
 func (s *service) DeleteHistory(ctx context.Context, historyId domain.HistoryId) error {
-	if historyId <= 0 {
+	if uuid.UUID(historyId) == uuid.Nil {
 		return errors.New("invalid history ID")
 	}
 	return s.repo.Delete(ctx, historyId)

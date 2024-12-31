@@ -4,11 +4,12 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/domain"
 	walletDomain "github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/wallet/domain"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage/types"
+	"github.com/google/uuid"
 )
 
 func HistoryDomainToStorage(domainHistory domain.History) types.History {
 	return types.History{
-		Id:          uint(domainHistory.Id),
+		Id:          uuid.UUID(domainHistory.Id),
 		CreatedAt:   domainHistory.CreatedAt,
 		UpdatedAt:   domainHistory.UpdatedAt,
 		DeletedAt:   domainHistory.DeletedAt,
