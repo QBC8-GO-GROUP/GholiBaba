@@ -39,3 +39,8 @@ message UserSignInResponse {
     string accessToken = 1 [json_name = "accessToken"];
     string refreshToken = 2 [json_name = "refreshToken"];
 }
+
+
+message ChangeRoleRequest{
+    Role Role = 1 [json_name = "role"];
+}

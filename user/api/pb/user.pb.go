@@ -322,6 +322,50 @@ func (x *UserSignInResponse) GetRefreshToken() string {
 	return ""
 }
 
+type ChangeRoleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Role          Role                   `protobuf:"varint,1,opt,name=Role,json=role,proto3,enum=Role" json:"Role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeRoleRequest) Reset() {
+	*x = ChangeRoleRequest{}
+	mi := &file_user_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeRoleRequest) ProtoMessage() {}
+
+func (x *ChangeRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeRoleRequest.ProtoReflect.Descriptor instead.
+func (*ChangeRoleRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ChangeRoleRequest) GetRole() Role {
+	if x != nil {
+		return x.Role
+	}
+	return Role_ROLE_REGULAR_USER
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 var file_user_proto_rawDesc = []byte{
@@ -351,7 +395,10 @@ var file_user_proto_rawDesc = []byte{
 	0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x54,
 	0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x22, 0x0a, 0x0c, 0x72, 0x65, 0x66, 0x72, 0x65, 0x73, 0x68, 0x54,
 	0x6f, 0x6b, 0x65, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x72, 0x65, 0x66, 0x72,
-	0x65, 0x73, 0x68, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x2a, 0x9f, 0x02, 0x0a, 0x04, 0x52, 0x6f, 0x6c,
+	0x65, 0x73, 0x68, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x22, 0x2e, 0x0a, 0x11, 0x43, 0x68, 0x61, 0x6e,
+	0x67, 0x65, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a,
+	0x04, 0x52, 0x6f, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x05, 0x2e, 0x52, 0x6f,
+	0x6c, 0x65, 0x52, 0x04, 0x72, 0x6f, 0x6c, 0x65, 0x2a, 0x9f, 0x02, 0x0a, 0x04, 0x52, 0x6f, 0x6c,
 	0x65, 0x12, 0x15, 0x0a, 0x11, 0x52, 0x4f, 0x4c, 0x45, 0x5f, 0x52, 0x45, 0x47, 0x55, 0x4c, 0x41,
 	0x52, 0x5f, 0x55, 0x53, 0x45, 0x52, 0x10, 0x00, 0x12, 0x0e, 0x0a, 0x0a, 0x52, 0x4f, 0x4c, 0x45,
 	0x5f, 0x41, 0x44, 0x4d, 0x49, 0x4e, 0x10, 0x01, 0x12, 0x1b, 0x0a, 0x17, 0x52, 0x4f, 0x4c, 0x45,
@@ -388,21 +435,23 @@ func file_user_proto_rawDescGZIP() []byte {
 }
 
 var file_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_user_proto_goTypes = []any{
 	(Role)(0),                  // 0: Role
 	(*UserSignUpRequest)(nil),  // 1: UserSignUpRequest
 	(*UserSignUpResponse)(nil), // 2: UserSignUpResponse
 	(*UserSignInRequest)(nil),  // 3: UserSignInRequest
 	(*UserSignInResponse)(nil), // 4: UserSignInResponse
+	(*ChangeRoleRequest)(nil),  // 5: ChangeRoleRequest
 }
 var file_user_proto_depIdxs = []int32{
 	0, // 0: UserSignUpRequest.Role:type_name -> Role
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 1: ChangeRoleRequest.Role:type_name -> Role
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -416,7 +465,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_user_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

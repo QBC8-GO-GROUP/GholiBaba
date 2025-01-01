@@ -58,11 +58,38 @@ func SignIn(svc *service.UserService) fiber.Handler {
 	}
 }
 
-// func UpdateUserRoleHandler(svc *service.UserService) fiber.Handler {
-// 	return func(c *fiber.Ctx) error {
-// 		return nil
-// 	}
-// }
+func UpdateUserRoleHandler(svc *service.UserService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+
+		var req pb.ChangeRoleRequest
+		if err := c.BodyParser(&req); err != nil {
+			return fiber.ErrBadRequest
+		}
+
+		// userID := c.Locals("user_id").(string)
+
+		err := svc.UpdateUserRoleHandler(c.UserContext(), &req)
+		if err != nil {
+			if errors.Is(err, service.ErrUserNotFound) {
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+					"error": "User not found",
+				})
+			}
+			if errors.Is(err, service.ErrInvalidRole) {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": "Invalid role provided",
+				})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to update role",
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"message": "User role updated successfully",
+		})
+	}
+}
 
 func TestHandler(ctx *fiber.Ctx) error {
 	logger := context.GetLogger(ctx.UserContext())

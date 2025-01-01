@@ -75,3 +75,27 @@ func (f *UserFilter) IsValid() bool {
 	f.Phone = strings.TrimSpace(f.Phone)
 	return f.ID > 0 || len(f.Phone) > 0
 }
+
+func AllowedRoles() []Role {
+	return []Role{
+		RegularUser,
+		BusTechnicalTeam,
+		CruiseShipTechnicalTeam,
+		AirplaneTechnicalTeam,
+		TrainTechnicalTeam,
+		TransportationCompanies,
+		TravelAgencies,
+		Hotels,
+		RealOwnerOfVehicles,
+	}
+}
+
+// IsValidRole checks if the given role is in the allowed list
+func IsValidRole(role Role) bool {
+	for _, allowedRole := range AllowedRoles() {
+		if role == allowedRole {
+			return true
+		}
+	}
+	return false
+}

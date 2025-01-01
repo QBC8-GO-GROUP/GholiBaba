@@ -52,3 +52,36 @@ func (s *service) GetUserByFilter(ctx context.Context, filter *domain.UserFilter
 
 	return user, nil
 }
+
+func (s *service) UpdateUser(ctx context.Context, user domain.User) error {
+
+	var emptyID domain.UserID
+	if user.ID == emptyID {
+		return ErrUserCreationValidation
+	}
+
+	err := s.repo.Update(ctx, user)
+	if err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) GetUserById(ctx context.Context, id domain.UserID) (domain.User, error) {
+
+	var emptyID domain.UserID
+	if id == emptyID {
+		return domain.User{}, ErrUserNotFound
+	}
+
+	user, err := s.repo.GetById(ctx, id)
+	if err != nil {
+		if errors.Is(err, ErrUserNotFound) {
+			return domain.User{}, ErrUserNotFound
+		}
+		return domain.User{}, fmt.Errorf("failed to retrieve user: %w", err)
+	}
+
+	return user, nil
+}

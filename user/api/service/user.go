@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strconv"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/api/pb"
 	"github.com/QBC8-GO-GROUP/GholiBaba/internal/user"
@@ -35,6 +37,7 @@ var (
 	ErrUserNotFound           = user.ErrUserNotFound
 	ErrInvalidUserPassword    = errors.New("invalid password")
 	ErrWrongOTP               = errors.New("wrong otp")
+	ErrInvalidRole            = errors.New("invalid role provided")
 )
 
 func (s *UserService) SignUp(ctx context.Context, req *pb.UserSignUpRequest) (*pb.UserSignUpResponse, error) {
@@ -108,9 +111,76 @@ func (s *UserService) SignIn(ctx context.Context, req *pb.UserSignInRequest) (*p
 	}, nil
 }
 
-// func UpdateUserRoleHandler(ctx context.Context, req *pb.UserSignUpRequest) (*pb.UserSignUpResponse, error){
-// 	return nil, errors
+// func (s *UserService) UpdateUserRoleHandler(ctx context.Context, req *pb.ChangeRoleRequest) error {
+
+// 	if req.Role.String() == string(domain.Admin) {
+// 		return ErrInvalidRole
+// 	}
+
+// 	requestedRole := domain.Role(req.Role)
+
+// 	if !domain.IsValidRole(requestedRole) {
+// 		return ErrInvalidRole
+// 	}
+
+// 	requesterID, ok := ctx.Value("user_id").(string)
+// 	if !ok || requesterID == "" {
+// 		return errors.New("failed to retrieve requester ID from context")
+// 	}
+
+// 	user, err := s.svc.GetUserById(ctx, req.UserId)
+// 	if err != nil {
+// 		return ErrUserNotFound
+// 	}
+
+// 	user.Role = requestedRole
+
+// 	if err := s.svc.UpdateUser(ctx, user); err != nil {
+// 		return err
+// 	}
+
+// 	return nil
 // }
+
+func (s *UserService) UpdateUserRoleHandler(ctx context.Context, req *pb.ChangeRoleRequest) error {
+	// Validate the role
+	if req.Role.String() == string(domain.Admin) {
+		return ErrInvalidRole
+	}
+
+	requestedRole := domain.Role(req.Role)
+	if !domain.IsValidRole(requestedRole) {
+		return ErrInvalidRole
+	}
+
+	// Retrieve user ID from context (set by middleware)
+	userIDStr, ok := ctx.Value("user_id").(string)
+	if !ok || userIDStr == "" {
+		return errors.New("failed to retrieve user ID from context")
+	}
+
+	// Convert userIDStr to domain.UserID (assuming domain.UserID is uint)
+	userIDUint, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid user ID format: %w", err)
+	}
+
+	userID := domain.UserID(userIDUint)
+
+	// Fetch the user by ID
+	user, err := s.svc.GetUserById(ctx, userID)
+	if err != nil {
+		return ErrUserNotFound
+	}
+
+	// Update the user's role
+	user.Role = requestedRole
+	if err := s.svc.UpdateUser(ctx, user); err != nil {
+		return fmt.Errorf("failed to update user role: %w", err)
+	}
+
+	return nil
+}
 
 func (s *UserService) createTokens(userID uint, role string) (access, refresh string, err error) {
 	access, err = jwt.CreateToken([]byte(s.authSecret), &jwt.UserClaims{

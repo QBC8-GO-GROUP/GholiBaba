@@ -21,9 +21,13 @@ func Run(appContainer app.App, cfg config.ServerConfig) error {
 	api.Post("/sign-in", SignIn(service.NewUserService(appContainer.UserService(),
 		cfg.Secret, cfg.AuthExpMinute, cfg.AuthRefreshMinute)))
 
-	// app.Patch("/:id/role", newAuthMiddleware([]byte(cfg.Secret)),
-	// 	UpdateUserRoleHandler(service.NewUserService(appContainer.UserService(),
-	// 		cfg.Secret, cfg.AuthExpMinute, cfg.AuthRefreshMinute)))
+	api.Patch("/:id/role",
+		newAuthMiddleware([]byte(cfg.Secret)),
+		UpdateUserRoleHandler(service.NewUserService(
+			appContainer.UserService(),
+			cfg.Secret,
+			cfg.AuthExpMinute,
+			cfg.AuthRefreshMinute)))
 
 	api.Get("/test", newAuthMiddleware([]byte(cfg.Secret)), TestHandler)
 
