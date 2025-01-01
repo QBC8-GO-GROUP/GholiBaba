@@ -10,6 +10,7 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	recover2 "github.com/gofiber/fiber/v2/middleware/recover"
 	"log"
 )
 
@@ -34,8 +35,14 @@ func main() {
 	})
 	router := fiberApp.Group("/")
 
-	//fiberApp.Use(recover2.New())
+	fiberApp.Use(recover2.New())
 	fiberApp.Use(logger.New(logger.Config{}))
+
+	fiberApp.Get("/health", func(ctx *fiber.Ctx) error {
+		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "service is up and running",
+		})
+	})
 
 	transaction := http.Transaction(application.DB())
 	http.RegisterWaller(router, transaction, walletHandler)

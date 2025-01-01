@@ -1,7 +1,6 @@
 package http
 
 import (
-	historyDomain "github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/domain"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/port"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -56,7 +55,7 @@ func (h *HistoryHandler) ApproveFactor() fiber.Handler {
 			return fiber.NewError(fiber.StatusBadRequest, "Invalid history ID")
 		}
 
-		histories, err := h.service.FindHistoryWithId(c.UserContext(), historyDomain.HistoryId(historyId))
+		histories, err := h.service.FindHistoryWithCode(c.UserContext(), historyId)
 		if err != nil || len(histories) == 0 {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"message": "History record not found",

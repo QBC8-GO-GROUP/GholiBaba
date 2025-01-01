@@ -6,6 +6,7 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/domain"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/internal/history/port"
 	"github.com/google/uuid"
+	"log"
 )
 
 type service struct {
@@ -17,8 +18,9 @@ func NewService(r port.Repo) port.Service {
 }
 
 func (s *service) CreateHistory(ctx context.Context, history domain.History) (domain.HistoryId, error) {
+	log.Println(history.Price)
 	if err := validateHistory(history); err != nil {
-		return domain.HistoryId(uuid.Nil), err
+		return 0, err
 	}
 	return s.repo.Create(ctx, history)
 }
@@ -31,9 +33,6 @@ func (s *service) UpdateHistory(ctx context.Context, history domain.History) err
 }
 
 func (s *service) FindHistoryWithId(ctx context.Context, id domain.HistoryId) ([]domain.History, error) {
-	if uuid.UUID(id) == uuid.Nil {
-		return nil, errors.New("invalid history ID: UUID is empty")
-	}
 	return s.repo.FindWithId(ctx, id)
 }
 
@@ -44,10 +43,14 @@ func (s *service) FindHistoryWithUserId(ctx context.Context, userId string) ([]d
 	return s.repo.FindWithUserId(ctx, userId)
 }
 
-func (s *service) DeleteHistory(ctx context.Context, historyId domain.HistoryId) error {
-	if uuid.UUID(historyId) == uuid.Nil {
-		return errors.New("invalid history ID")
+func (s *service) FindHistoryWithCode(ctx context.Context, userId uuid.UUID) ([]domain.History, error) {
+	if userId == uuid.Nil {
+		return nil, errors.New("invalid user ID")
 	}
+	return s.repo.FindWithCode(ctx, userId)
+}
+
+func (s *service) DeleteHistory(ctx context.Context, historyId domain.HistoryId) error {
 	return s.repo.Delete(ctx, historyId)
 }
 

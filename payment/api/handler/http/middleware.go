@@ -35,7 +35,6 @@ func Transaction(db *gorm.DB) fiber.Handler {
 		tr := db.Begin()
 
 		context.SetDB(c.UserContext(), tr)
-
 		err := c.Next()
 
 		if err != nil {
