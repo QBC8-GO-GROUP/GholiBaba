@@ -8,12 +8,14 @@ import (
 	"time"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/conv"
+	"github.com/google/uuid"
 )
 
 // value object
 type (
 	UserID uint
 	Phone  string
+	Role   string
 )
 
 func (p Phone) IsValid() bool {
@@ -29,7 +31,22 @@ type User struct {
 	LastName  string
 	Password  string
 	Phone     Phone
+	Role      Role
+	WalletID  uuid.UUID
 }
+
+const (
+	Admin                   Role = "admin"
+	RegularUser             Role = "regular_user"
+	BusTechnicalTeam        Role = "bus_technical_team"
+	CruiseShipTechnicalTeam Role = "cruise_ship_technical_team"
+	AirplaneTechnicalTeam   Role = "airplane_technical_team"
+	TrainTechnicalTeam      Role = "train_technical_team"
+	TransportationCompanies Role = "transportation_companies"
+	TravelAgencies          Role = "travel_agencies"
+	Hotels                  Role = "hotels"
+	RealOwnerOfVehicles     Role = "real_owner_of_vehicles"
+)
 
 func (u *User) Validate() error {
 	if !u.Phone.IsValid() {

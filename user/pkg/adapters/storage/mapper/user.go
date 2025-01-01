@@ -18,6 +18,8 @@ func UserDomain2Storage(userDomain domain.User) *types.User {
 		LastName:  userDomain.LastName,
 		Phone:     string(userDomain.Phone),
 		Password:  userDomain.Password,
+		// WalletID:  userDomain.WalletID,
+		Role: types.Role(userDomain.Role),
 	}
 }
 
@@ -30,5 +32,7 @@ func UserStorage2Domain(user types.User) *domain.User {
 		LastName:  user.LastName,
 		Phone:     domain.Phone(user.Phone),
 		Password:  user.Password,
+		// WalletID:  user.WalletID,
+		Role: domain.Role(user.Role),
 	}
 }

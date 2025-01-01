@@ -2,12 +2,25 @@ syntax = "proto3";
 
 option go_package = "github.com/babyhando/order-service/api/pb";
 
+enum Role {
+    ROLE_REGULAR_USER = 0; // Default
+    ROLE_ADMIN = 1;
+    ROLE_BUS_TECHNICAL_TEAM = 2;
+    ROLE_CRUISE_SHIP_TECHNICAL_TEAM = 3;
+    ROLE_AIRPLANE_TECHNICAL_TEAM = 4;
+    ROLE_TRAIN_TECHNICAL_TEAM = 5;
+    ROLE_TRANSPORTATION_COMPANIES = 6;
+    ROLE_TRAVEL_AGencies = 7;
+    ROLE_HOTELS = 8;
+    ROLE_REAL_OWNER_OF_VEHICLES = 9;
+}
 
 message UserSignUpRequest {
     string firstName = 1 [json_name = "firstName"];
     string lastName = 2 [json_name = "lastName"];
     string phone = 3 [json_name = "phone"];
     string password = 4;
+    Role Role = 5 [json_name = "role"];
 
 }
 

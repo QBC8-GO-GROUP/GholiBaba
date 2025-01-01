@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/api/pb"
 	"github.com/QBC8-GO-GROUP/GholiBaba/internal/user"
@@ -40,14 +39,15 @@ var (
 
 func (s *UserService) SignUp(ctx context.Context, req *pb.UserSignUpRequest) (*pb.UserSignUpResponse, error) {
 
-	fmt.Println("req:", req)
-	fmt.Println("ctx context.Context:", ctx)
-
+	if req.GetRole() == pb.Role_ROLE_REGULAR_USER {
+		req.Role = pb.Role_ROLE_REGULAR_USER
+	}
 	userID, err := s.svc.CreateUser(ctx, domain.User{
 		FirstName: req.GetFirstName(),
 		LastName:  req.GetLastName(),
 		Phone:     domain.Phone(req.GetPhone()),
 		Password:  req.GetPassword(),
+		Role:      domain.Role(req.GetRole().String()),
 	})
 
 	if err != nil {
@@ -81,7 +81,6 @@ func (s *UserService) SignUp(ctx context.Context, req *pb.UserSignUpRequest) (*p
 }
 
 func (s *UserService) SignIn(ctx context.Context, req *pb.UserSignInRequest) (*pb.UserSignInResponse, error) {
-	fmt.Println("ctx context.Context: ", ctx)
 
 	user, err := s.svc.GetUserByFilter(ctx, &domain.UserFilter{
 		Phone: req.GetPhone(),
@@ -98,7 +97,7 @@ func (s *UserService) SignIn(ctx context.Context, req *pb.UserSignInRequest) (*p
 		return nil, ErrInvalidUserPassword
 	}
 
-	access, refresh, err := s.createTokens(uint(user.ID))
+	access, refresh, err := s.createTokens(uint(user.ID), string(user.Role))
 	if err != nil {
 		return nil, err
 	}
@@ -109,12 +108,17 @@ func (s *UserService) SignIn(ctx context.Context, req *pb.UserSignInRequest) (*p
 	}, nil
 }
 
-func (s *UserService) createTokens(userID uint) (access, refresh string, err error) {
+// func UpdateUserRoleHandler(ctx context.Context, req *pb.UserSignUpRequest) (*pb.UserSignUpResponse, error){
+// 	return nil, errors
+// }
+
+func (s *UserService) createTokens(userID uint, role string) (access, refresh string, err error) {
 	access, err = jwt.CreateToken([]byte(s.authSecret), &jwt.UserClaims{
 		RegisteredClaims: jwt2.RegisteredClaims{
 			ExpiresAt: jwt2.NewNumericDate(time.AddMinutes(s.expMin, true)),
 		},
 		UserID: uint(userID),
+		Role:   role,
 	})
 	if err != nil {
 		return
@@ -125,6 +129,7 @@ func (s *UserService) createTokens(userID uint) (access, refresh string, err err
 			ExpiresAt: jwt2.NewNumericDate(time.AddMinutes(s.refreshExpMin, true)),
 		},
 		UserID: uint(userID),
+		Role:   role,
 	})
 
 	if err != nil {
