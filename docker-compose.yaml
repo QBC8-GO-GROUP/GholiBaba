@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  postgresdb:
+    image: postgres:latest
+    container_name: GholiBaba_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "1234:5432"
+    networks:
+      - GholiBaba
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    env_file:
+      - ./.env
+    build:
+      context: ./
+      dockerfile: ./user/Dockerfile
+    container_name: GholiBaba-user
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_SSLMODE=${DB_SSLMODE}
+      - DB_SCHEMA=${DB_SCHEMA}
+    ports:
+      - 8080:8080
+      - 40000:40000
+    volumes:
+      - .:/app
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - GholiBaba
+
+  redisdb:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    networks:
+      - GholiBaba
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: -js
+    networks:
+        - GholiBaba
+
+volumes:
+  pg_data:
+  redis_data:
+
+networks:
+  GholiBaba:
+    driver: bridge

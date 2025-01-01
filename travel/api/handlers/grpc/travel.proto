@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "github.com/QBC8-GO-GROUP/GholiBaba/api/handlers/grpc";
+
+message BookTravelRequest {
+  string travel_id = 1;
+}
+
+message BookTravelResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message CancelBookingRequest {
+  string travel_id = 1;
+}
+
+message CancelBookingResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message CancelTravelRequest {
+  string travel_id = 1;
+}
+
+message CancelTravelResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message ApproveTravelRequest {
+  string travel_id = 1;
+}
+
+message ApproveTravelResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message FinishTravelRequest {
+  string travel_id = 1;
+}
+
+message FinishTravelResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+service TravelAgencyService {  
+  rpc BookTravel (BookTravelRequest) returns (BookTravelResponse);
+  rpc CancelBooking (CancelBookingRequest) returns (CancelBookingResponse);
+  rpc CancelTravel (CancelTravelRequest) returns (CancelTravelResponse);
+  rpc ApproveTravel (ApproveTravelRequest) returns (ApproveTravelResponse);
+  rpc FinishTravel (FinishTravelRequest) returns (FinishTravelResponse);
+}

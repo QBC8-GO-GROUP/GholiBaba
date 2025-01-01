@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - travel-network
+    ports:
+      - '${POSTGRES_PORT}:5432'
+
+  gholi-travel:
+    build: .
+    container_name: gholi-travel
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=production
+      - TZ=Asia/Tehran
+      - CONFIG_PATH=/app/config.json
+    networks:
+      - travel-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    volumes:
+      - ${CONFIG_PATH}:/app/config.json
+
+networks:
+  travel-network:
+    driver: bridge
