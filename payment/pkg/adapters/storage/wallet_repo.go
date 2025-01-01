@@ -7,6 +7,7 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage/mapper"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage/types"
 	"gorm.io/gorm"
+	"log"
 )
 
 type walletRepo struct {
@@ -19,25 +20,22 @@ func NewWalletRepo(db *gorm.DB) port.Repo {
 
 func (w *walletRepo) Create(ctx context.Context, wallet domain.Wallet) error {
 	storageWallet := mapper.WalletDomainToStorage(wallet)
-	return w.db.WithContext(ctx).Create(&storageWallet).Error
+	return w.db.WithContext(ctx).Table("wallets").Create(&storageWallet).Error
 }
 
 func (w *walletRepo) Update(ctx context.Context, wallet domain.Wallet) error {
 	storageWallet := mapper.WalletDomainToStorage(wallet)
-	return w.db.WithContext(ctx).
-		Model(&types.Wallet{}).
-		Where("id = ?", storageWallet.Id).
-		Updates(storageWallet).Error
+	return w.db.WithContext(ctx).Table("wallets").Save(&storageWallet).Error
 }
 
 func (w *walletRepo) FindWithUserId(ctx context.Context, userId string) (domain.Wallet, error) {
 	var storageWallet types.Wallet
-	err := w.db.WithContext(ctx).
-		Where("user_id = ?", userId).
-		First(&storageWallet).Error
+	err := w.db.Raw("select * from wallets where user_id = ?", userId).Scan(&storageWallet).Error
 	if err != nil {
+		log.Println(err)
 		return domain.Wallet{}, err
 	}
+	log.Println(storageWallet)
 	return mapper.WalletStorageToDomain(storageWallet)
 }
 

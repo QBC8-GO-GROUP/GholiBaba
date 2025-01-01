@@ -18,8 +18,8 @@ type History struct {
 	Code        uuid.UUID
 	IsApproved  bool
 	Price       float64
-	Source      domain.WalletID
-	Destination domain.WalletID
+	Source      domain.WalletID `gorm:"default null"`
+	Destination domain.WalletID `gorm:"default null"`
 	Title       string
 	Description string
 }

@@ -7,10 +7,10 @@ import (
 
 type Card struct {
 	gorm.Model
-	Id        uint
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time
-	Numbers   string
-	WalletId  uint //walletDomain.WalletID
+	Id        uint      `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt time.Time `json:"deleted_at"`
+	Numbers   string    `json:"numbers"`
+	WalletId  uint      `json:"wallet_id"`
 }

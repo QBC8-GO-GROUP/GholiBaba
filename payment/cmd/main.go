@@ -30,17 +30,26 @@ func main() {
 	cardHandler := http.NewCardHandler(cardService)
 	historyHandler := http.NewHistoryHandler(historyService)
 
-	fiberApp := fiber.New()
+	fiberApp := fiber.New(fiber.Config{
+		DisableStartupMessage: false,
+	})
+	router := fiberApp.Group("/")
 
-	fiberApp.Use(logger.New())
 	fiberApp.Use(recover2.New())
+	fiberApp.Use(logger.New(logger.Config{}))
 
-	http.RegisterHistory(fiberApp, historyHandler)
-	http.RegisterCards(fiberApp, cardHandler)
+	fiberApp.Get("/health", func(ctx *fiber.Ctx) error {
+		return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+			"message": "service is up and running",
+		})
+	})
 
 	transaction := http.Transaction(application.DB())
-	http.RegisterWaller(fiberApp, transaction, walletHandler)
+	http.RegisterWaller(router, transaction, walletHandler)
 
-	log.Fatal(fiberApp.Listen("8080"))
+	http.RegisterHistory(router, historyHandler)
+	http.RegisterCards(router, cardHandler)
+
+	log.Fatal(fiberApp.Listen(":8080"))
 
 }

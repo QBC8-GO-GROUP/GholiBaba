@@ -7,11 +7,11 @@ import (
 
 type Wallet struct {
 	gorm.Model
-	Id        uint //WalletID
-	UserId    string
-	Code      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time
-	Money     float64
+	Id        uint      `json:"id"`
+	UserId    string    `json:"user_id" gorm:"user_id, unique, not null"`
+	Code      string    `json:"code"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt time.Time `json:"deleted_at"`
+	Money     float64   `json:"money"`
 }
