@@ -25,6 +25,11 @@ func NewApp(cfg config.Config) (*App, error) {
 		return nil, err
 	}
 
+	err = app.AutoMigrate()
+	if err != nil {
+		return nil, err
+	}
+
 	return app, nil
 }
 
@@ -48,7 +53,6 @@ func (app *App) setDB() error {
 		Host:   cfg.Host,
 		Port:   cfg.Port,
 		DBName: cfg.Database,
-		Schema: cfg.Schema,
 	})
 
 	if err != nil {
@@ -60,11 +64,10 @@ func (app *App) setDB() error {
 
 }
 
-func AutoMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(
+func (app *App) AutoMigrate() error {
+	return app.db.AutoMigrate(
 		&cardsDomain.Card{},
 		&historyDomain.History{},
 		&walletDomain.Wallet{},
 	)
-	return err
 }

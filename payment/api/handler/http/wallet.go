@@ -11,6 +11,7 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"log"
 	"time"
 )
 
@@ -24,7 +25,7 @@ func NewWalletHandler(walletService port.Service) *WalletHandler {
 	}
 }
 
-func (h *WalletHandler) Pay() fiber.Handler {
+func Pay() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userId := c.GetRespHeader("userId", "")
 		if userId == "" {
@@ -107,16 +108,20 @@ func (h *WalletHandler) Pay() fiber.Handler {
 	}
 }
 
-func (h *WalletHandler) AddMoney() fiber.Handler {
+func AddMoney() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userId := c.GetRespHeader("userId", "")
-		if userId == "" {
-			return fiber.ErrBadRequest
+		userId, err := FindUserId(c)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "user id not found",
+			})
 		}
 
 		var req AddMoneyReq
 		if err := c.BodyParser(&req); err != nil {
-			return fiber.ErrBadRequest
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "bad body request",
+			})
 		}
 
 		db := context.GetDB(c.UserContext())
@@ -138,7 +143,9 @@ func (h *WalletHandler) AddMoney() fiber.Handler {
 
 		err = walletService.UpdateWallet(c.UserContext(), userWallet)
 		if err != nil {
-			return fiber.ErrInternalServerError
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "user wallet can not be updated",
+			})
 		}
 
 		code, err := uuid.NewUUID()
@@ -158,7 +165,9 @@ func (h *WalletHandler) AddMoney() fiber.Handler {
 		})
 
 		if err != nil {
-			return fiber.ErrInternalServerError
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "can not save history",
+			})
 		}
 
 		_ = createHistory
@@ -169,16 +178,22 @@ func (h *WalletHandler) AddMoney() fiber.Handler {
 	}
 }
 
-func (h *WalletHandler) CreateWallet() fiber.Handler {
+func CreateWallet(h *WalletHandler) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userId := c.GetRespHeader("userId", "")
-		if userId == "" {
-			return fiber.ErrBadRequest
+		userId, err := FindUserId(c)
+
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "user wallet not found",
+			})
 		}
 
 		code, err := uuid.NewUUID()
 		if err != nil {
-			return fiber.ErrInternalServerError
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "can create wallet id",
+			})
 		}
 
 		var newWallet = domain.Wallet{
@@ -190,7 +205,10 @@ func (h *WalletHandler) CreateWallet() fiber.Handler {
 		ctx := c.UserContext()
 		err = h.walletService.CreateWallet(ctx, newWallet)
 		if err != nil {
-			return c.SendStatus(fiber.StatusInternalServerError)
+			log.Println(err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "db problem",
+			})
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
@@ -202,10 +220,17 @@ func (h *WalletHandler) CreateWallet() fiber.Handler {
 func RegisterWaller(api fiber.Router, transaction fiber.Handler, walletHandler *WalletHandler) {
 	group := api.Group("/wallet", SetUserContext)
 
+	//group.Post("/", func(ctx *fiber.Ctx) error {
+	//	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+	//		"success": true,
+	//	})
+	//})
+	group.Post("/", CreateWallet(walletHandler))
+
 	group.Use(transaction)
 
-	group.Post("money", walletHandler.AddMoney())
-	group.Post("pay", walletHandler.Pay())
+	group.Post("money", AddMoney())
+	group.Post("pay", Pay())
 }
 
 type AddMoneyReq struct {

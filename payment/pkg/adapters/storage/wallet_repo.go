@@ -7,6 +7,7 @@ import (
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage/mapper"
 	"github.com/QBC8-GO-GROUP/GholiBaba/payment/pkg/adapters/storage/types"
 	"gorm.io/gorm"
+	"log"
 )
 
 type walletRepo struct {
@@ -32,12 +33,15 @@ func (w *walletRepo) Update(ctx context.Context, wallet domain.Wallet) error {
 
 func (w *walletRepo) FindWithUserId(ctx context.Context, userId string) (domain.Wallet, error) {
 	var storageWallet types.Wallet
-	err := w.db.WithContext(ctx).
+	err := w.db.Table("wallets").WithContext(ctx).
 		Where("user_id = ?", userId).
+		Limit(1).
 		First(&storageWallet).Error
 	if err != nil {
+		log.Println(err)
 		return domain.Wallet{}, err
 	}
+	log.Println(storageWallet)
 	return mapper.WalletStorageToDomain(storageWallet)
 }
 

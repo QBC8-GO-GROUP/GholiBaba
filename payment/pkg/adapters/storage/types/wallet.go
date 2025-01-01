@@ -8,7 +8,7 @@ import (
 type Wallet struct {
 	gorm.Model
 	Id        uint      `json:"id"`
-	UserId    string    `json:"user_id"`
+	UserId    string    `json:"user_id" gorm:"user_id, unique, not null"`
 	Code      string    `json:"code"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
