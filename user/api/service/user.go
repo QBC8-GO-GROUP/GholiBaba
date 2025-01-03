@@ -142,29 +142,123 @@ func (s *UserService) SignIn(ctx context.Context, req *pb.UserSignInRequest) (*p
 // 	return nil
 // }
 
+// func (s *UserService) UpdateUserRoleHandler(ctx context.Context, req *pb.ChangeRoleRequest) error {
+
+// 	if req.Role.String() == string(domain.Admin) {
+// 		return ErrInvalidRole
+// 	}
+
+// 	requestedRole := domain.Role(req.Role)
+// 	// if !domain.IsValidRole(requestedRole) {
+
+// 	// 	return ErrInvalidRole
+// 	// }
+
+// 	fmt.Println("yeeeeeees", requestedRole)
+
+// 	userIDStr, ok := ctx.Value("user_id").(string)
+// 	if !ok || userIDStr == "" {
+// 		return errors.New("failed to retrieve user ID from context")
+// 	}
+
+// 	// Convert userIDStr to domain.UserID (assuming domain.UserID is uint)
+// 	userIDUint, err := strconv.ParseUint(userIDStr, 10, 64)
+// 	if err != nil {
+// 		return fmt.Errorf("invalid user ID format: %w", err)
+// 	}
+
+// 	userID := domain.UserID(userIDUint)
+
+// 	// Fetch the user by ID
+// 	user, err := s.svc.GetUserById(ctx, userID)
+// 	if err != nil {
+// 		return ErrUserNotFound
+// 	}
+
+// 	// Update the user's role
+// 	user.Role = requestedRole
+// 	if err := s.svc.UpdateUser(ctx, user); err != nil {
+// 		return fmt.Errorf("failed to update user role: %w", err)
+// 	}
+
+// 	return nil
+// }
+
+// func (s *UserService) UpdateUserRoleHandler(ctx context.Context, req *pb.ChangeRoleRequest) error {
+
+// 	requestedRole, err := domain.MapProtoRoleToDomain(req.Role)
+// 	if err != nil {
+// 		return ErrInvalidRole
+// 	}
+
+// 	fmt.Println("Parsed Role:", requestedRole)
+
+// 	u := ctx.Value("user_id")
+// 	fmt.Println("User ID:", u)
+
+// 	userIDStr, ok := ctx.Value("user_id").(string)
+
+// 	if !ok || userIDStr == "" {
+// 		return errors.New("failed to retrieve user ID from context")
+// 	}
+
+// 	userIDUint, err := strconv.ParseUint(userIDStr, 10, 64)
+// 	if err != nil {
+// 		return fmt.Errorf("invalid user ID format: %w", err)
+// 	}
+
+// 	userID := domain.UserID(userIDUint)
+
+// 	// Fetch the user by ID
+// 	user, err := s.svc.GetUserById(ctx, userID)
+// 	if err != nil {
+// 		return ErrUserNotFound
+// 	}
+
+// 	// Update the user's role
+// 	user.Role = requestedRole
+// 	if err := s.svc.UpdateUser(ctx, user); err != nil {
+// 		return fmt.Errorf("failed to update user role: %w", err)
+// 	}
+
+// 	return nil
+// }
+
 func (s *UserService) UpdateUserRoleHandler(ctx context.Context, req *pb.ChangeRoleRequest) error {
-	// Validate the role
-	if req.Role.String() == string(domain.Admin) {
-		return ErrInvalidRole
-	}
-
-	requestedRole := domain.Role(req.Role)
-	if !domain.IsValidRole(requestedRole) {
-		return ErrInvalidRole
-	}
-
-	// Retrieve user ID from context (set by middleware)
-	userIDStr, ok := ctx.Value("user_id").(string)
-	if !ok || userIDStr == "" {
-		return errors.New("failed to retrieve user ID from context")
-	}
-
-	// Convert userIDStr to domain.UserID (assuming domain.UserID is uint)
-	userIDUint, err := strconv.ParseUint(userIDStr, 10, 64)
+	requestedRole, err := domain.MapProtoRoleToDomain(req.Role)
 	if err != nil {
-		return fmt.Errorf("invalid user ID format: %w", err)
+		return ErrInvalidRole
 	}
 
+	fmt.Println("Parsed Role:", requestedRole)
+
+	// Retrieve user_id from context
+	u := ctx.Value("user_id")
+	fmt.Println("Raw User ID from context:", u)
+
+	var userIDUint uint64
+
+	switch v := u.(type) {
+	case string:
+		// If it's a string, try parsing it into uint64
+		userIDUint, err = strconv.ParseUint(v, 10, 64)
+		if err != nil {
+			return fmt.Errorf("invalid user ID format from string: %w", err)
+		}
+	case int:
+		// If it's an int, cast directly
+		userIDUint = uint64(v)
+	case uint:
+		// If it's a uint, cast directly
+		userIDUint = uint64(v)
+	case uint64:
+		// If it's already uint64, use it directly
+		userIDUint = v
+	default:
+		return errors.New("user_id is of an unsupported type in context")
+	}
+
+	// Convert to your domain-specific type
 	userID := domain.UserID(userIDUint)
 
 	// Fetch the user by ID
@@ -172,6 +266,7 @@ func (s *UserService) UpdateUserRoleHandler(ctx context.Context, req *pb.ChangeR
 	if err != nil {
 		return ErrUserNotFound
 	}
+	fmt.Println("requestedRole", requestedRole)
 
 	// Update the user's role
 	user.Role = requestedRole

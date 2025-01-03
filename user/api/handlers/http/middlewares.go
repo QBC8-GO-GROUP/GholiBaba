@@ -2,6 +2,7 @@ package http
 
 import (
 	con "context"
+	"fmt"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/context"
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/jwt"
@@ -39,6 +40,7 @@ func newAuthMiddleware(secret []byte) fiber.Handler {
 			// 		// "role":    claims.Role,
 			// 	},
 			// })
+			fmt.Printf("From middleware - UserID: %v, Role: %v\n", userClaims.UserID, userClaims.Role)
 
 			return ctx.Next()
 		},

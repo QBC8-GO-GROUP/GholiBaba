@@ -1,6 +1,7 @@
 package http
 
 import (
+	con "context"
 	"errors"
 	"fmt"
 	"time"
@@ -60,15 +61,25 @@ func SignIn(svc *service.UserService) fiber.Handler {
 
 func UpdateUserRoleHandler(svc *service.UserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		var req struct {
+			Role string `json:"role"`
+		}
 
-		var req pb.ChangeRoleRequest
 		if err := c.BodyParser(&req); err != nil {
 			return fiber.ErrBadRequest
 		}
 
-		// userID := c.Locals("user_id").(string)
+		roleEnum := pb.Role_value[req.Role]
 
-		err := svc.UpdateUserRoleHandler(c.UserContext(), &req)
+		changeRoleReq := &pb.ChangeRoleRequest{
+			Role: pb.Role(roleEnum),
+		}
+
+		ctx := con.WithValue(c.UserContext(), "user_id", c.Locals("user_id"))
+		// ctx = con.WithValue(ctx, "role", c.Locals("role"))
+
+		err := svc.UpdateUserRoleHandler(ctx, changeRoleReq)
+
 		if err != nil {
 			if errors.Is(err, service.ErrUserNotFound) {
 				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -80,9 +91,6 @@ func UpdateUserRoleHandler(svc *service.UserService) fiber.Handler {
 					"error": "Invalid role provided",
 				})
 			}
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to update role",
-			})
 		}
 
 		return c.JSON(fiber.Map{

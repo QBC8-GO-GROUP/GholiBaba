@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/internal/user/domain"
 	"github.com/QBC8-GO-GROUP/GholiBaba/internal/user/port"
@@ -50,19 +51,91 @@ func (r *userRepo) GetByFilter(ctx context.Context, filter *domain.UserFilter) (
 	return mapper.UserStorage2Domain(user), nil
 }
 
+// func (r *userRepo) Update(ctx context.Context, user domain.User) error {
+
+// 	var existingUser domain.User
+
+// 	if err := r.db.Where("id = ?", user.ID).First(&existingUser).Error; err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return errors.New("user not found")
+// 		}
+// 		return err
+// 	}
+
+// 	if err := r.db.Model(&existingUser).Updates(user).Error; err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+// func (r *userRepo) Update(ctx context.Context, user domain.User) error {
+// 	// Fetch the existing user
+// 	var existingUser domain.User
+// 	if err := r.db.WithContext(ctx).Where("id = ?", user.ID).First(&existingUser).Error; err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return errors.New("user not found")
+// 		}
+// 		return fmt.Errorf("failed to fetch user: %w", err)
+// 	}
+
+// 	// Explicitly update fields
+// 	updates := map[string]interface{}{}
+
+// 	// Ensure Role is non-empty before adding to updates
+// 	if user.Role != "" {
+// 		updates["role"] = user.Role
+// 		fmt.Println("Updating Role to:", user.Role)
+// 	}
+
+// 	if len(updates) == 0 {
+// 		return errors.New("no fields to update")
+// 	}
+
+// 	// Apply updates
+// 	result := r.db.WithContext(ctx).Model(&existingUser).Updates(updates)
+// 	if result.Error != nil {
+// 		return fmt.Errorf("failed to update user: %w", result.Error)
+// 	}
+
+// 	// Check if rows were affected
+// 	if result.RowsAffected == 0 {
+// 		return errors.New("no rows updated, possibly due to identical values")
+// 	}
+
+// 	return nil
+// }
+
 func (r *userRepo) Update(ctx context.Context, user domain.User) error {
 
 	var existingUser domain.User
-
-	if err := r.db.Where("id = ?", user.ID).First(&existingUser).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", user.ID).First(&existingUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("user not found")
 		}
-		return err
+		return fmt.Errorf("failed to fetch user: %w", err)
 	}
 
-	if err := r.db.Model(&existingUser).Updates(user).Error; err != nil {
-		return err
+	updates := map[string]interface{}{}
+
+	if user.Role != "" && domain.IsValidRole(user.Role) {
+		updates["role"] = string(user.Role)
+		fmt.Println("Updating Role to:", user.Role)
+	} else if user.Role != "" {
+		return errors.New("invalid role provided")
+	}
+
+	if len(updates) == 0 {
+		return errors.New("no fields to update")
+	}
+
+	result := r.db.WithContext(ctx).Model(&existingUser).Select("role").Updates(updates)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update user: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("no rows updated, possibly due to identical values")
 	}
 
 	return nil

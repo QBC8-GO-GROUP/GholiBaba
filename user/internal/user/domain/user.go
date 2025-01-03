@@ -4,8 +4,11 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
+
+	"github.com/QBC8-GO-GROUP/GholiBaba/api/pb"
 
 	"github.com/QBC8-GO-GROUP/GholiBaba/pkg/conv"
 	"github.com/google/uuid"
@@ -98,4 +101,30 @@ func IsValidRole(role Role) bool {
 		}
 	}
 	return false
+}
+func MapProtoRoleToDomain(protoRole pb.Role) (Role, error) {
+	switch protoRole {
+	case pb.Role_ROLE_ADMIN:
+		return Admin, nil
+	case pb.Role_ROLE_REGULAR_USER:
+		return RegularUser, nil
+	case pb.Role_ROLE_BUS_TECHNICAL_TEAM:
+		return BusTechnicalTeam, nil
+	case pb.Role_ROLE_CRUISE_SHIP_TECHNICAL_TEAM:
+		return CruiseShipTechnicalTeam, nil
+	case pb.Role_ROLE_AIRPLANE_TECHNICAL_TEAM:
+		return AirplaneTechnicalTeam, nil
+	case pb.Role_ROLE_TRAIN_TECHNICAL_TEAM:
+		return TrainTechnicalTeam, nil
+	case pb.Role_ROLE_TRANSPORTATION_COMPANIES:
+		return TransportationCompanies, nil
+	case pb.Role_ROLE_TRAVEL_AGENCIES:
+		return TravelAgencies, nil
+	case pb.Role_ROLE_HOTELS:
+		return Hotels, nil
+	case pb.Role_ROLE_REAL_OWNER_OF_VEHICLES:
+		return RealOwnerOfVehicles, nil
+	default:
+		return "", fmt.Errorf("invalid role provided")
+	}
 }

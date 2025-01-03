@@ -53,16 +53,29 @@ func (s *service) GetUserByFilter(ctx context.Context, filter *domain.UserFilter
 	return user, nil
 }
 
-func (s *service) UpdateUser(ctx context.Context, user domain.User) error {
+// func (s *service) UpdateUser(ctx context.Context, user domain.User) error {
 
+// 	var emptyID domain.UserID
+// 	if user.ID == emptyID {
+// 		return ErrUserCreationValidation
+// 	}
+
+// 	err := s.repo.Update(ctx, user)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to update user: %w", err)
+// 	}
+
+// 	return nil
+// }
+
+func (s *service) UpdateUser(ctx context.Context, user domain.User) error {
 	var emptyID domain.UserID
 	if user.ID == emptyID {
 		return ErrUserCreationValidation
 	}
 
-	err := s.repo.Update(ctx, user)
-	if err != nil {
-		return fmt.Errorf("failed to update user: %w", err)
+	if err := s.repo.Update(ctx, user); err != nil {
+		return fmt.Errorf("failed to update user in repository: %w", err)
 	}
 
 	return nil
