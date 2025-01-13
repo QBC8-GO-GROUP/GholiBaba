@@ -1,4 +1,4 @@
-# Goli Baba Integrated Travel Management System
+# Gholi Baba Integrated Travel Management System
 
 This project is a microservices-based travel management platform, developed as part of the Quera Golang Bootcamp (Autumn 1403). The platform is designed to help users efficiently plan and manage travel bookings for buses, trains, flights, hotels, and more.
 
